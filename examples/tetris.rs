@@ -275,8 +275,6 @@ impl Tetris {
     fn rotate(&mut self) {
         fn rotate_tetrad(tetrad: &mut Tetrad) {
             for tile in tetrad.tiles.iter_mut() {
-                //println!("row: {}, column: {}\r", tile.row, tile.column); 
-                //println!("center: {:?}\r", tetrad.center); 
                 let row = tile.row as f32;
                 let center_row = tetrad.center.0 as f32;
                 let column = tile.column as f32;
@@ -284,19 +282,13 @@ impl Tetris {
 
                 let normalized = ndarray::arr2(
                     &[[row - center_row],[column - center_column]]);
-                //println!("normalized: {}\r", normalized); 
 
                 let rotation_matrix = ndarray::arr2(&[[0.,-1.],[1.,0.]]);
-                //println!("rotation_matrix: {}\r", rotation_matrix); 
 
                 let rotated = rotation_matrix.dot(&normalized);
-                //println!("rotated: {}\r", rotated); 
 
                 let new_row = rotated[[0,0]] + center_row;
                 let new_column = rotated[[1,0]] + center_column;
-                //println!("new_row: {:?}\r", new_row);
-                //println!("new_column: {:?}\r", new_column);
-                //println!("====\r");
                 tile.row = new_row as usize;
                 tile.column = new_column as usize;
             }
