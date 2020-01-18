@@ -62,6 +62,8 @@ trait Update {
     fn remove_tile(&mut self, tile: Tile);            
 
     fn valid_tile(&self, tile: Tile) -> bool;            
+    fn full_rows(&self) -> Vec<usize>;
+    fn clear_rows(&mut self, full_rows: Vec<usize>);
 }
 
 impl Update for Grid<Tile> {
@@ -91,14 +93,42 @@ impl Update for Grid<Tile> {
     //TODO refactor
     fn valid_tile(&self, tile: Tile) -> bool {
         let row_good = 0 <= tile.row && tile.row < self.height;
-//TODO
-//has issues with left index usize going to -1
-        let column_good = 0 < tile.column && tile.column < self.width;
+        let column_good = 0 <= tile.column && tile.column < self.width;
         let mut location_ocupied = false;
         if row_good && column_good {
             location_ocupied = self.grid[[tile.row, tile.column]].empty;
         }
         row_good && column_good && location_ocupied
+    }
+
+    fn full_rows(&self) -> Vec<usize> {
+        let mut full_rows = Vec::new();
+        let nrows = self.height;
+        for row in self.grid.genrows() {
+            let full_row = row.into_iter().all(|tile| tile.empty == false);
+            if full_row {
+                full_rows.push(row[0].row)
+            }
+        }
+        full_rows
+    }
+
+    fn clear_rows(&mut self, full_rows: Vec<usize>) {
+    
+        let row = full_rows[0];
+        //clear_row()
+        let mut tiles_to_remove = Vec::new();
+        for tile in self.grid.iter() {
+            if tile.row == row {
+                tiles_to_remove.push(tile);
+                //self.remove_tile(*tile);
+                //tile.row += 1;
+            }
+        }
+        //for tile in tiles_to_remove {
+        //    self.remove_tile(*tile);
+        //}
+
     }
 }
 
@@ -240,14 +270,16 @@ impl Tetris {
 
     //TODO
     //better python like function wrapping?
-    //TODO
-    //has issues with left index usize going to -1
     fn move_left(&mut self) { 
         fn move_tetrad_left(tetrad: &mut Tetrad) {
-            for tile in tetrad.tiles.iter_mut() {
-                tile.column -= 1;
+            //TODO shouldnt need a specific check for move left 
+            let legal = tetrad.tiles.iter().all(|x| x.column > 0);
+            if legal {
+                for tile in tetrad.tiles.iter_mut() {
+                    tile.column -= 1;
+                }
+                tetrad.center.1 -= 1.0;
             }
-            tetrad.center.1 -= 1.0;
         }
         self.move_active_tetrad(Box::new(move_tetrad_left))
     }
@@ -322,11 +354,21 @@ fn main() {
     let mut game_live = true;
 
     while game_live {
-        print!("{}[2J", 27 as char);
+        //print!("{}[2J", 27 as char);
         println!("{}", tetris.grid);
         tetris.move_down();
         if tetris.active_tetrad.tiles[0].row == row_before && tetris.active_tetrad.tiles[0].column == column_before {
+
+
+            //check rows for clear
+            let full_rows = tetris.grid.full_rows();
+            if full_rows.len() > 0 {
+                println!("full rows: {:?}", full_rows);
+                tetris.grid.clear_rows(full_rows);
+            }
+
             tetris.active_tetrad = Tetrad::new_random();
+
             let valid_move = tetris.active_tetrad.tiles
                 .iter()
                 .all(|tile| tetris.grid.valid_tile(*tile));
@@ -359,7 +401,7 @@ fn main() {
                 },
                 _ => break
             }
-            print!("{}[2J", 27 as char);
+            //print!("{}[2J", 27 as char);
             println!("{}", tetris.grid);
             next_drop -= time_elapsed;
         }
