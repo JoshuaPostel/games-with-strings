@@ -103,7 +103,6 @@ impl Update for Grid<Tile> {
 
     fn full_rows(&self) -> Vec<usize> {
         let mut full_rows = Vec::new();
-        let nrows = self.height;
         for row in self.grid.genrows() {
             let full_row = row.into_iter().all(|tile| tile.empty == false);
             if full_row {
@@ -115,20 +114,16 @@ impl Update for Grid<Tile> {
 
     fn clear_rows(&mut self, full_rows: Vec<usize>) {
     
-        let row = full_rows[0];
-        //clear_row()
-        let mut tiles_to_remove = Vec::new();
-        for tile in self.grid.iter() {
-            if tile.row == row {
-                tiles_to_remove.push(tile);
-                //self.remove_tile(*tile);
-                //tile.row += 1;
+        //let full_row = 20;
+        let full_row = full_rows[0];
+        for full_row in full_rows {
+            let _ = self.grid.row_mut(full_row).map_mut(std::mem::take);
+            for row_index in (0..full_row).rev() {
+                //println!("{}", row_index);
+                let bottom_row = self.grid.row_mut(row_index).map_mut(std::mem::take);
+                self.grid.row_mut(row_index + 1).assign(&bottom_row);
             }
         }
-        //for tile in tiles_to_remove {
-        //    self.remove_tile(*tile);
-        //}
-
     }
 }
 
@@ -359,11 +354,9 @@ fn main() {
         tetris.move_down();
         if tetris.active_tetrad.tiles[0].row == row_before && tetris.active_tetrad.tiles[0].column == column_before {
 
-
-            //check rows for clear
             let full_rows = tetris.grid.full_rows();
             if full_rows.len() > 0 {
-                println!("full rows: {:?}", full_rows);
+                //println!("full rows: {:?}", full_rows);
                 tetris.grid.clear_rows(full_rows);
             }
 
