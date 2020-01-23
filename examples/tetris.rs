@@ -126,8 +126,8 @@ impl Update for Grid<Tile> {
                 self.grid.row_mut(row_index + 1).assign(&bottom_row);
             }
         }
-        let bottom_row = self.grid.row(self.height - 1);
-        println!("br: {:?}", bottom_row);
+//        let bottom_row = self.grid.row(self.height - 1);
+//        println!("br: {:?}", bottom_row);
     }
 }
 
@@ -345,6 +345,7 @@ fn main() {
     tetris.grid.add_tetrad(&tetris.active_tetrad);
     let mut row_before = 0;
     let mut column_before = 0;
+    let mut tetrad_before = Tetrad::new();
 
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock().into_raw_mode().unwrap();
