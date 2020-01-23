@@ -114,16 +114,20 @@ impl Update for Grid<Tile> {
 
     fn clear_rows(&mut self, full_rows: Vec<usize>) {
     
-        //let full_row = 20;
-        let full_row = full_rows[0];
         for full_row in full_rows {
             let _ = self.grid.row_mut(full_row).map_mut(std::mem::take);
             for row_index in (0..full_row).rev() {
-                //println!("{}", row_index);
-                let bottom_row = self.grid.row_mut(row_index).map_mut(std::mem::take);
+                let mut bottom_row = self.grid.row_mut(row_index).map_mut(std::mem::take);
+                //not equiv?
+                //bottom_row.iter_mut().map(|tile| tile.row += 1);
+                for tile in bottom_row.iter_mut() {
+                    tile.row += 1;
+                }
                 self.grid.row_mut(row_index + 1).assign(&bottom_row);
             }
         }
+        let bottom_row = self.grid.row(self.height - 1);
+        println!("br: {:?}", bottom_row);
     }
 }
 
@@ -358,6 +362,7 @@ fn main() {
             if full_rows.len() > 0 {
                 //println!("full rows: {:?}", full_rows);
                 tetris.grid.clear_rows(full_rows);
+                //println!("{:?}", tetris.grid);
             }
 
             tetris.active_tetrad = Tetrad::new_random();
