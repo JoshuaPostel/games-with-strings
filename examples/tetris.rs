@@ -142,10 +142,10 @@ impl Tetrad {
     fn new_I() -> Tetrad {
         let light_blue  = RGB { r: 102, g: 255, b: 255 };
         Tetrad {
-            tiles: [Tile { empty: false, color: light_blue, row: 1, column: 3},
-                    Tile { empty: false, color: light_blue, row: 1, column: 4},
-                    Tile { empty: false, color: light_blue, row: 1, column: 5},
-                    Tile { empty: false, color: light_blue, row: 1, column: 6}
+            tiles: [Tile { empty: true, color: light_blue, row: 1, column: 3},
+                    Tile { empty: true, color: light_blue, row: 1, column: 4},
+                    Tile { empty: true, color: light_blue, row: 1, column: 5},
+                    Tile { empty: true, color: light_blue, row: 1, column: 6}
             ],
             center: (0.0, 5.0)
         }
@@ -154,10 +154,10 @@ impl Tetrad {
     fn new_O() -> Tetrad {
         let yello  = RGB { r: 255, g: 255, b: 102 };
         Tetrad {
-            tiles: [Tile { empty: false, color: yello, row: 0, column: 4},
-                    Tile { empty: false, color: yello, row: 1, column: 4},
-                    Tile { empty: false, color: yello, row: 1, column: 5},
-                    Tile { empty: false, color: yello, row: 0, column: 5}
+            tiles: [Tile { empty: true, color: yello, row: 0, column: 4},
+                    Tile { empty: true, color: yello, row: 1, column: 4},
+                    Tile { empty: true, color: yello, row: 1, column: 5},
+                    Tile { empty: true, color: yello, row: 0, column: 5}
             ],
             center: (0.5, 4.5)
         }
@@ -166,10 +166,10 @@ impl Tetrad {
     fn new_T() -> Tetrad {
         let purple  = RGB { r: 178, g: 102, b: 255 };
         Tetrad {
-            tiles: [Tile { empty: false, color: purple, row: 1, column: 3},
-                    Tile { empty: false, color: purple, row: 1, column: 4},
-                    Tile { empty: false, color: purple, row: 1, column: 5},
-                    Tile { empty: false, color: purple, row: 0, column: 4}
+            tiles: [Tile { empty: true, color: purple, row: 1, column: 3},
+                    Tile { empty: true, color: purple, row: 1, column: 4},
+                    Tile { empty: true, color: purple, row: 1, column: 5},
+                    Tile { empty: true, color: purple, row: 0, column: 4}
             ],
             center: (1.0, 4.0)
         }
@@ -178,10 +178,10 @@ impl Tetrad {
     fn new_S() -> Tetrad {
         let green  = RGB { r: 102, g: 255, b: 102 };
         Tetrad {
-            tiles: [Tile { empty: false, color: green, row: 1, column: 5},
-                    Tile { empty: false, color: green, row: 1, column: 6},
-                    Tile { empty: false, color: green, row: 0, column: 5},
-                    Tile { empty: false, color: green, row: 0, column: 4}
+            tiles: [Tile { empty: true, color: green, row: 1, column: 5},
+                    Tile { empty: true, color: green, row: 1, column: 6},
+                    Tile { empty: true, color: green, row: 0, column: 5},
+                    Tile { empty: true, color: green, row: 0, column: 4}
             ],
             center: (0.0, 5.0)
         }
@@ -190,10 +190,10 @@ impl Tetrad {
     fn new_Z() -> Tetrad {
         let red  = RGB { r: 255, g: 0, b: 0 };
         Tetrad {
-            tiles: [Tile { empty: false, color: red, row: 0, column: 4},
-                    Tile { empty: false, color: red, row: 0, column: 5},
-                    Tile { empty: false, color: red, row: 1, column: 3},
-                    Tile { empty: false, color: red, row: 1, column: 4}
+            tiles: [Tile { empty: true, color: red, row: 0, column: 4},
+                    Tile { empty: true, color: red, row: 0, column: 5},
+                    Tile { empty: true, color: red, row: 1, column: 3},
+                    Tile { empty: true, color: red, row: 1, column: 4}
             ],
             center: (0.0, 4.0)
         }
@@ -202,10 +202,10 @@ impl Tetrad {
     fn new_J() -> Tetrad {
         let orange  = RGB { r: 255, g: 153, b: 51 };
         Tetrad {
-            tiles: [Tile { empty: false, color: orange, row: 0, column: 3},
-                    Tile { empty: false, color: orange, row: 1, column: 4},
-                    Tile { empty: false, color: orange, row: 1, column: 5},
-                    Tile { empty: false, color: orange, row: 1, column: 3}
+            tiles: [Tile { empty: true, color: orange, row: 0, column: 3},
+                    Tile { empty: true, color: orange, row: 1, column: 4},
+                    Tile { empty: true, color: orange, row: 1, column: 5},
+                    Tile { empty: true, color: orange, row: 1, column: 3}
             ],
             center: (1.0, 4.0)
         }
@@ -214,10 +214,10 @@ impl Tetrad {
     fn new_L() -> Tetrad {
         let dark_blue  = RGB { r: 0, g: 0, b: 255 };
         Tetrad {
-            tiles: [Tile { empty: false, color: dark_blue, row: 0, column: 6},
-                    Tile { empty: false, color: dark_blue, row: 1, column: 4},
-                    Tile { empty: false, color: dark_blue, row: 1, column: 5},
-                    Tile { empty: false, color: dark_blue, row: 1, column: 6}
+            tiles: [Tile { empty: true, color: dark_blue, row: 0, column: 6},
+                    Tile { empty: true, color: dark_blue, row: 1, column: 4},
+                    Tile { empty: true, color: dark_blue, row: 1, column: 5},
+                    Tile { empty: true, color: dark_blue, row: 1, column: 6}
             ],
             center: (1.0, 5.0)
         }
@@ -251,10 +251,10 @@ impl Tetrad {
     }
 }
 
-
 struct Tetris {
     grid: Grid<Tile>,
     active_tetrad: Tetrad,
+    tetrad_shadow: Tetrad,
 }
 
 impl Tetris {
@@ -265,6 +265,38 @@ impl Tetris {
         tetrad.move_tetrad(&self.grid, tetrad_mover);
         self.grid.add_tetrad(&tetrad);
         self.active_tetrad = tetrad;
+        self.update_shadow();
+    }
+
+    fn get_shadow(&self) -> Tetrad {
+        let mut shadow = self.active_tetrad.clone();
+        let mut rows_to_drop = 0;
+        while shadow.tiles.iter().all(|tile| self.grid.valid_tile(*tile)) {
+            shadow.tiles.iter_mut().for_each(|tile| tile.row += 1);
+            rows_to_drop += 1;
+        }
+        for tile in shadow.tiles.iter_mut() {
+            tile.row -= 1;
+            //TODO proper saturation calculation
+            //https://stackoverflow.com/questions/13806483/increase-or-decrease-color-saturation
+//            tile.color.r = tile.color.r / 2;
+//            tile.color.g = tile.color.g / 2;
+//            tile.color.b = tile.color.b / 2;
+        }
+        shadow
+    }
+
+    fn update_shadow(&mut self) {
+        self.grid.remove_tetrad(&self.tetrad_shadow);
+        let shadow = self.get_shadow();
+        self.grid.add_tetrad(&shadow);
+        self.tetrad_shadow = shadow;
+    } 
+
+    fn hard_drop(&mut self) { 
+        self.grid.remove_tetrad(&self.active_tetrad);
+        self.active_tetrad.tiles = self.tetrad_shadow.tiles;
+        //self.move_active_tetrad(Box::new(hard_drop_tetrad))
     }
 
     //TODO
@@ -285,9 +317,7 @@ impl Tetris {
 
     fn move_right(&mut self) { 
         fn move_tetrad_right(tetrad: &mut Tetrad) {
-            for tile in tetrad.tiles.iter_mut() {
-                tile.column += 1;
-            }
+            tetrad.tiles.iter_mut().for_each(|tile| tile.column += 1);
             tetrad.center.1 += 1.0;
         }
         self.move_active_tetrad(Box::new(move_tetrad_right))
@@ -295,9 +325,7 @@ impl Tetris {
     
     fn move_down(&mut self) { 
         fn move_tetrad_down(tetrad: &mut Tetrad) {
-            for tile in tetrad.tiles.iter_mut() {
-                tile.row += 1;
-            }
+            tetrad.tiles.iter_mut().for_each(|tile| tile.row += 1);
             tetrad.center.0 += 1.0;
         }
         self.move_active_tetrad(Box::new(move_tetrad_down))
@@ -310,14 +338,10 @@ impl Tetris {
                 let center_row = tetrad.center.0 as f32;
                 let column = tile.column as f32;
                 let center_column = tetrad.center.1 as f32;
-
                 let normalized = ndarray::arr2(
                     &[[row - center_row],[column - center_column]]);
-
                 let rotation_matrix = ndarray::arr2(&[[0.,-1.],[1.,0.]]);
-
                 let rotated = rotation_matrix.dot(&normalized);
-
                 let new_row = rotated[[0,0]] + center_row;
                 let new_column = rotated[[1,0]] + center_column;
                 tile.row = new_row as usize;
@@ -326,6 +350,11 @@ impl Tetris {
         }
         self.move_active_tetrad(Box::new(rotate_tetrad))
     }
+}
+
+fn vecs_match<T: PartialEq>(a: &Vec<T>, b: &Vec<T>) -> bool {
+    let matches = a.iter().zip(b.iter()).filter(|&(a, b)| a == b).count();
+    matches == a.len() && matches == b.len()
 }
 
 fn main() {
@@ -339,13 +368,12 @@ fn main() {
 		}
     }
 
-    let mut g = Grid::new(width, height, tiles);
-    let i = Tetrad::new_L();
-    let mut tetris = Tetris { grid: g, active_tetrad: i };
+    let g = Grid::new(width, height, tiles);
+    let mut tetris = Tetris { grid: g, 
+        active_tetrad: Tetrad::new_random(), 
+        tetrad_shadow: Tetrad::new_L() };
+    tetris.update_shadow();
     tetris.grid.add_tetrad(&tetris.active_tetrad);
-    let mut row_before = 0;
-    let mut column_before = 0;
-    let mut tetrad_before = Tetrad::new();
 
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock().into_raw_mode().unwrap();
@@ -356,8 +384,32 @@ fn main() {
     while game_live {
         //print!("{}[2J", 27 as char);
         println!("{}", tetris.grid);
+
+        //TODO stay dry
+        let mut rows_before: Vec<usize> = Vec::new();
+        let mut columns_before: Vec<usize> = Vec::new();
+        for i in 0..4 {
+            rows_before.push(tetris.active_tetrad.tiles[i].row);
+            columns_before.push(tetris.active_tetrad.tiles[i].column);
+        }
         tetris.move_down();
-        if tetris.active_tetrad.tiles[0].row == row_before && tetris.active_tetrad.tiles[0].column == column_before {
+
+        //TODO stay dry
+        let mut tetrad_rows: Vec<usize> = Vec::new();
+        let mut tetrad_columns: Vec<usize> = Vec::new();
+        for i in 0..4 {
+            tetrad_rows.push(tetris.active_tetrad.tiles[i].row);
+            tetrad_columns.push(tetris.active_tetrad.tiles[i].column);
+        }
+
+        if vecs_match(&tetrad_rows, &rows_before) && vecs_match(&tetrad_columns, &columns_before) {
+
+            tetris.active_tetrad.tiles.iter_mut().for_each(|tile| tile.empty = false);
+            tetris.grid.add_tetrad(&tetris.active_tetrad);
+
+            for tile in tetris.active_tetrad.tiles.iter_mut() {
+                tile.empty = false;
+            }
 
             let full_rows = tetris.grid.full_rows();
             if full_rows.len() > 0 {
@@ -367,6 +419,8 @@ fn main() {
             }
 
             tetris.active_tetrad = Tetrad::new_random();
+            tetris.tetrad_shadow = tetris.get_shadow();
+            tetris.grid.add_tetrad(&tetris.tetrad_shadow);
 
             let valid_move = tetris.active_tetrad.tiles
                 .iter()
@@ -377,8 +431,6 @@ fn main() {
                 break
             }
         }
-        row_before = tetris.active_tetrad.tiles[0].row;
-        column_before = tetris.active_tetrad.tiles[0].column;
 
         let mut next_drop = std::time::Duration::from_millis(1000);
         let last_drop = std::time::Instant::now();
@@ -394,6 +446,7 @@ fn main() {
                 Some(Ok(b'j')) => tetris.move_down(),
                 Some(Ok(b'k')) => tetris.rotate(),
                 Some(Ok(b'l')) => tetris.move_right(),
+                Some(Ok(b':')) => tetris.hard_drop(),
                 Some(Ok(b'q')) => {
                     game_live = false;
                     break;
