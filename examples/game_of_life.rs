@@ -5,7 +5,7 @@ extern crate rand;
 extern crate ndarray;
 extern crate itertools;
 
-use grid::{Color, RGB, Grid};
+use grid::{Depict, RGB, Grid};
 
 use rand::Rng;
 use itertools::Itertools;
@@ -36,10 +36,14 @@ impl Tile {
     }
 }
 
-impl Color for Tile {
+impl Depict for Tile {
 
     fn color(&self) -> RGB {
         self.color
+    }
+
+    fn utf8(&self) -> [u8; 4] {
+        [0xE2, 0x96, 0xA0, 0x20]
     }
 }
 
