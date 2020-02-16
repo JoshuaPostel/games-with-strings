@@ -3,7 +3,6 @@
 * package/executables
 
 ### Tetris
-* rotate left/right
 * next tetrad not full random
 * display next tetrads
 * score

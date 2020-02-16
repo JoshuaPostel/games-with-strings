@@ -136,8 +136,6 @@ impl Update for Grid<Tile> {
                 self.grid.row_mut(row_index + 1).assign(&bottom_row);
             }
         }
-//        let bottom_row = self.grid.row(self.height - 1);
-//        println!("br: {:?}", bottom_row);
     }
 }
 
@@ -346,24 +344,43 @@ impl Tetris {
         self.move_active_tetrad(Box::new(move_tetrad_down))
     }
 
-    fn rotate(&mut self) {
-        fn rotate_tetrad(tetrad: &mut Tetrad) {
-            for tile in tetrad.tiles.iter_mut() {
-                let row = tile.row as f32;
-                let center_row = tetrad.center.0 as f32;
-                let column = tile.column as f32;
-                let center_column = tetrad.center.1 as f32;
-                let normalized = ndarray::arr2(
-                    &[[row - center_row],[column - center_column]]);
-                let rotation_matrix = ndarray::arr2(&[[0.,-1.],[1.,0.]]);
-                let rotated = rotation_matrix.dot(&normalized);
-                let new_row = rotated[[0,0]] + center_row;
-                let new_column = rotated[[1,0]] + center_column;
-                tile.row = new_row as usize;
-                tile.column = new_column as usize;
-            }
+    fn rotate_tetrad(tetrad: &mut Tetrad, rotation_matrix: [[f32; 2]; 2]) {
+        for tile in tetrad.tiles.iter_mut() {
+            let row = tile.row as f32;
+            let center_row = tetrad.center.0 as f32;
+            let column = tile.column as f32;
+            let center_column = tetrad.center.1 as f32;
+            let normalized = ndarray::arr2(
+                &[[row - center_row],[column - center_column]]);
+            let rotation_matrix = ndarray::arr2(&rotation_matrix);
+            let rotated = rotation_matrix.dot(&normalized);
+            let new_row = rotated[[0,0]] + center_row;
+            let new_column = rotated[[1,0]] + center_column;
+            tile.row = new_row as usize;
+            tile.column = new_column as usize;
         }
-        self.move_active_tetrad(Box::new(rotate_tetrad))
+    }
+
+    fn rotate_left(&mut self) {
+        
+        fn rotate_tetrad_left(tetrad: &mut Tetrad) {
+            let rotation_matrix: [[f32; 2]; 2] = [[0.,-1.],[1.,0.]];
+           // println!("{:?}", rotation_matrix);
+            Tetris::rotate_tetrad(tetrad, rotation_matrix)
+        }
+
+        self.move_active_tetrad(Box::new(rotate_tetrad_left))
+    }
+
+    fn rotate_right(&mut self) {
+        
+        fn rotate_tetrad_right(tetrad: &mut Tetrad) {
+            let rotation_matrix: [[f32; 2]; 2] = [[0.,1.],[-1.,0.]];
+           // println!("{:?}", rotation_matrix);
+            Tetris::rotate_tetrad(tetrad, rotation_matrix)
+        }
+
+        self.move_active_tetrad(Box::new(rotate_tetrad_right))
     }
 }
 
@@ -448,6 +465,7 @@ fn main() {
         let mut next_drop = std::time::Duration::from_millis(1000);
         let last_drop = std::time::Instant::now();
 
+        //TODO replace counter with time compairison?
         let mut counter = 0;
         loop {
             if counter == 0 {
@@ -461,11 +479,11 @@ fn main() {
             }
             match input.next() {
                 None => continue,
-                Some(Ok(b'h')) => tetris.move_left(),
-                Some(Ok(b'j')) => tetris.move_down(),
-                Some(Ok(b'k')) => tetris.rotate(),
-                Some(Ok(b'l')) => tetris.move_right(),
-                Some(Ok(b':')) => {
+                Some(Ok(b'j')) => tetris.move_left(),
+                Some(Ok(b'k')) => tetris.rotate_left(),
+                Some(Ok(b'l')) => tetris.rotate_right(),
+                Some(Ok(b':')) => tetris.move_right(),
+                Some(Ok(b'h')) => {
                     tetris.hard_drop();
                     hard_dropped = true;
                     },
