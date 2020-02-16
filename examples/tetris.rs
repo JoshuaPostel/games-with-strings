@@ -480,10 +480,11 @@ fn main() {
             match input.next() {
                 None => continue,
                 Some(Ok(b'j')) => tetris.move_left(),
-                Some(Ok(b'k')) => tetris.rotate_left(),
-                Some(Ok(b'l')) => tetris.rotate_right(),
-                Some(Ok(b':')) => tetris.move_right(),
-                Some(Ok(b'h')) => {
+                Some(Ok(b'k')) => tetris.move_right(),
+                Some(Ok(b'g')) => tetris.move_down(),
+                Some(Ok(b'd')) => tetris.rotate_left(),
+                Some(Ok(b'f')) => tetris.rotate_right(),
+                Some(Ok(b' ')) => {
                     tetris.hard_drop();
                     hard_dropped = true;
                     },
