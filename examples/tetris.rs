@@ -10,62 +10,18 @@ use rand::Rng;
 use std::io::Read;
 use termion::raw::IntoRawMode;
 
-use grid::{Depict, RGB, Grid};
+use grid::grid::rgb::{RGB};
+use grid::grid::grid::{Grid, Depict};
+use grid::tetris::tile::Tile;
+use grid::tetris::tetrad::Tetrad;
 
 const square: [u8; 4] = [0xE2, 0x96, 0xA0, 0x20];
 const square_outline: [u8; 4] = [0xE2, 0x96, 0xA1, 0x20];
 const outlined_square: [u8; 4] = [0xE2, 0x96, 0xA3, 0x20];
 
-#[derive(Copy, Clone, Debug)]
-struct Tile {
-    empty: bool,
-    color: RGB,
-    utf8: [u8; 4],
-    row: usize,
-    column: usize,
-}
-
-impl Default for Tile {
-    fn default() -> Tile {
-        Tile {
-            empty: true,
-            color: RGB { r: 47, g: 79, b: 79},
-            utf8: square,
-            row: 0,
-            column: 0,
-        }
-    }
-}
-
-impl Tile {
-
-    fn new(row: usize, column: usize) -> Tile {
-        Tile { row, column, ..Default::default() }
-    }
-}
-
-impl Depict for Tile {
-
-    fn color(&self) -> RGB {
-        self.color
-    }
-
-    fn utf8(&self) -> [u8; 4] {
-        self.utf8
-    }
-}
-
-impl Tile {
-
-    fn advance(&mut self) {
-        self.row += 1;
-    }
-}
-
-
 trait Update {
 
-    fn add_tetrad(&mut self, tetrad: &Tetrad);            
+    fn add_tetrad(&mut self, tetrad: &Tetrad);
     fn remove_tetrad(&mut self, tetrad: &Tetrad);            
 
     fn add_tile(&mut self, tile: Tile);            
@@ -139,113 +95,13 @@ impl Update for Grid<Tile> {
     }
 }
 
-#[derive(Clone)]
-struct Tetrad {
-    tiles: [Tile; 4],
-    center: (f32, f32)
+trait Move {
+
+    //TODO rename to move
+    fn move_tetrad(&mut self, grid: &Grid<Tile>, tetrad_mover: Box<dyn Fn(&mut Tetrad)>);
 }
 
-
-impl Tetrad {
-
-    fn new_I() -> Tetrad {
-        let light_blue  = RGB { r: 102, g: 255, b: 255 };
-        Tetrad {
-            tiles: [Tile { empty: true, color: light_blue, utf8: outlined_square, row: 1, column: 3},
-                    Tile { empty: true, color: light_blue, utf8: outlined_square, row: 1, column: 4},
-                    Tile { empty: true, color: light_blue, utf8: outlined_square, row: 1, column: 5},
-                    Tile { empty: true, color: light_blue, utf8: outlined_square, row: 1, column: 6}
-            ],
-            center: (0.0, 5.0)
-        }
-    }
-
-    fn new_O() -> Tetrad {
-        let yello  = RGB { r: 255, g: 255, b: 102 };
-        Tetrad {
-            tiles: [Tile { empty: true, color: yello, utf8: outlined_square, row: 0, column: 4},
-                    Tile { empty: true, color: yello, utf8: outlined_square, row: 1, column: 4},
-                    Tile { empty: true, color: yello, utf8: outlined_square, row: 1, column: 5},
-                    Tile { empty: true, color: yello, utf8: outlined_square, row: 0, column: 5}
-            ],
-            center: (0.5, 4.5)
-        }
-    }
-
-    fn new_T() -> Tetrad {
-        let purple  = RGB { r: 178, g: 102, b: 255 };
-        Tetrad {
-            tiles: [Tile { empty: true, color: purple, utf8: outlined_square, row: 1, column: 3},
-                    Tile { empty: true, color: purple, utf8: outlined_square, row: 1, column: 4},
-                    Tile { empty: true, color: purple, utf8: outlined_square, row: 1, column: 5},
-                    Tile { empty: true, color: purple, utf8: outlined_square, row: 0, column: 4}
-            ],
-            center: (1.0, 4.0)
-        }
-    }
-
-    fn new_S() -> Tetrad {
-        let green  = RGB { r: 102, g: 255, b: 102 };
-        Tetrad {
-            tiles: [Tile { empty: true, color: green, utf8: outlined_square, row: 1, column: 5},
-                    Tile { empty: true, color: green, utf8: outlined_square, row: 1, column: 6},
-                    Tile { empty: true, color: green, utf8: outlined_square, row: 0, column: 5},
-                    Tile { empty: true, color: green, utf8: outlined_square, row: 0, column: 4}
-            ],
-            center: (0.0, 5.0)
-        }
-    }
-
-    fn new_Z() -> Tetrad {
-        let red  = RGB { r: 255, g: 0, b: 0 };
-        Tetrad {
-            tiles: [Tile { empty: true, color: red, utf8: outlined_square, row: 0, column: 4},
-                    Tile { empty: true, color: red, utf8: outlined_square, row: 0, column: 5},
-                    Tile { empty: true, color: red, utf8: outlined_square, row: 1, column: 3},
-                    Tile { empty: true, color: red, utf8: outlined_square, row: 1, column: 4}
-            ],
-            center: (0.0, 4.0)
-        }
-    }
-
-    fn new_J() -> Tetrad {
-        let orange  = RGB { r: 255, g: 153, b: 51 };
-        Tetrad {
-            tiles: [Tile { empty: true, color: orange, utf8: outlined_square, row: 0, column: 3},
-                    Tile { empty: true, color: orange, utf8: outlined_square, row: 1, column: 4},
-                    Tile { empty: true, color: orange, utf8: outlined_square, row: 1, column: 5},
-                    Tile { empty: true, color: orange, utf8: outlined_square, row: 1, column: 3}
-            ],
-            center: (1.0, 4.0)
-        }
-    }
-
-    fn new_L() -> Tetrad {
-        let dark_blue  = RGB { r: 0, g: 0, b: 255 };
-        Tetrad {
-            tiles: [Tile { empty: true, color: dark_blue, utf8: outlined_square, row: 0, column: 6},
-                    Tile { empty: true, color: dark_blue, utf8: outlined_square, row: 1, column: 4},
-                    Tile { empty: true, color: dark_blue, utf8: outlined_square, row: 1, column: 5},
-                    Tile { empty: true, color: dark_blue, utf8: outlined_square, row: 1, column: 6}
-            ],
-            center: (1.0, 5.0)
-        }
-    }
-
-    fn new_random() -> Tetrad {
-        let x = rand::thread_rng().gen_range(0,7);
-        match x {
-            0 => Tetrad::new_I(),
-            1 => Tetrad::new_O(),
-            2 => Tetrad::new_T(),
-            3 => Tetrad::new_S(),
-            4 => Tetrad::new_Z(),
-            5 => Tetrad::new_J(),
-            6 => Tetrad::new_L(),
-            _ => Tetrad::new_L(),
-        }
-    
-    }
+impl Move for Tetrad {
 
     fn move_tetrad(&mut self, grid: &Grid<Tile>, tetrad_mover: Box<dyn Fn(&mut Tetrad)>) {
         let mut new_tetrad = self.clone();
@@ -414,7 +270,7 @@ fn main() {
     let mut game_live = true;
 
     while game_live {
-        //print!("{}[2J", 27 as char);
+        print!("{}[2J", 27 as char);
         println!("{}", tetris.grid);
 
         //TODO stay dry
@@ -469,6 +325,7 @@ fn main() {
         let mut counter = 0;
         loop {
             if counter == 0 {
+                print!("{}[2J", 27 as char);
                 println!("{}", tetris.grid);
             }
             counter += 1;
@@ -497,7 +354,7 @@ fn main() {
             if hard_dropped {
                 break;
             }
-            //print!("{}[2J", 27 as char);
+            print!("{}[2J", 27 as char);
             println!("{}", tetris.grid);
             next_drop -= time_elapsed;
         }
