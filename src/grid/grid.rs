@@ -24,8 +24,8 @@ pub struct Grid<T: Depict> {
 
 impl<T: Depict> fmt::Display for Grid<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        //TODO add clear scree character here
         let mut display_string: String = String::new();
+        display_string.push_str("\x1B[2J");
         for row in self.grid.genrows() {
             for tile in row {
                 //TODO figure out the ownership issue here
