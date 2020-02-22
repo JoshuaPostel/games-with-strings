@@ -5,7 +5,8 @@ extern crate rand;
 extern crate ndarray;
 extern crate itertools;
 
-use grid::{Depict, RGB, Grid};
+use grid::grid::grid::{Depict, Grid};
+use grid::grid::rgb::RGB;
 
 use rand::Rng;
 use itertools::Itertools;

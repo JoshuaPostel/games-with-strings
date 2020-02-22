@@ -7,6 +7,7 @@ extern crate itertools;
 extern crate termion;
 
 use rand::Rng;
+use rand::prelude::SliceRandom;
 use std::io::Read;
 use termion::raw::IntoRawMode;
 
@@ -143,7 +144,6 @@ impl Tetris {
         for tile in shadow.tiles.iter_mut() {
             tile.row -= 1;
             tile.utf8 = square_outline;
-            //tile.color.mix_color(RGB {r: 255, g: 255, b: 255}, 0.5);
         }
         shadow
     }
@@ -257,8 +257,10 @@ fn main() {
     }
 
     let g = Grid::new(width, height, tiles);
+    let mut tetrad_queue = Tetrad::new_queue();
+
     let mut tetris = Tetris { grid: g, 
-        active_tetrad: Tetrad::new_random(), 
+        active_tetrad: tetrad_queue.pop().unwrap(), 
         tetrad_shadow: Tetrad::new_L() };
     tetris.update_shadow();
     tetris.grid.add_tetrad(&tetris.active_tetrad);
@@ -269,8 +271,9 @@ fn main() {
 
     let mut game_live = true;
 
+
     while game_live {
-        print!("{}[2J", 27 as char);
+        //print!("{}[2J", 27 as char);
         println!("{}", tetris.grid);
 
         //TODO stay dry
@@ -304,7 +307,15 @@ fn main() {
                 tetris.grid.clear_rows(full_rows);
             }
 
-            tetris.active_tetrad = Tetrad::new_random();
+            let new_tetrad = match tetrad_queue.pop() {
+                Some(x) => x,
+                _ => {
+                    tetrad_queue = Tetrad::new_queue();
+                    tetrad_queue.pop().unwrap()
+                }
+            };
+
+            tetris.active_tetrad = new_tetrad;
             tetris.tetrad_shadow = tetris.get_shadow();
             tetris.grid.add_tetrad(&tetris.tetrad_shadow);
 
@@ -325,7 +336,7 @@ fn main() {
         let mut counter = 0;
         loop {
             if counter == 0 {
-                print!("{}[2J", 27 as char);
+                //print!("{}[2J", 27 as char);
                 println!("{}", tetris.grid);
             }
             counter += 1;
@@ -354,7 +365,7 @@ fn main() {
             if hard_dropped {
                 break;
             }
-            print!("{}[2J", 27 as char);
+            //print!("{}[2J", 27 as char);
             println!("{}", tetris.grid);
             next_drop -= time_elapsed;
         }

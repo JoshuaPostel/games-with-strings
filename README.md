@@ -3,7 +3,7 @@
 * package/executables
 
 ### Tetris
-* next tetrad not full random
+~~* next tetrad not full random~~
 * display next tetrads
 * hold tetrad
 * score

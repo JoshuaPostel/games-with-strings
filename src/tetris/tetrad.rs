@@ -6,6 +6,7 @@ extern crate itertools;
 extern crate termion;
 
 use rand::Rng;
+use rand::prelude::SliceRandom;
 use std::io::Read;
 use termion::raw::IntoRawMode;
 
@@ -18,7 +19,7 @@ const square: [u8; 4] = [0xE2, 0x96, 0xA0, 0x20];
 const square_outline: [u8; 4] = [0xE2, 0x96, 0xA1, 0x20];
 const outlined_square: [u8; 4] = [0xE2, 0x96, 0xA3, 0x20];
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Tetrad {
     pub tiles: [Tile; 4],
     pub center: (f32, f32)
@@ -125,4 +126,19 @@ impl Tetrad {
         }
     
     }
+
+    pub fn new_queue() -> Vec<Tetrad> {
+        let mut rng = rand::thread_rng();
+        let mut queue: Vec<Tetrad> = Vec::new();
+        queue.push(Tetrad::new_I());
+        queue.push(Tetrad::new_O());
+        queue.push(Tetrad::new_T());
+        queue.push(Tetrad::new_S());
+        queue.push(Tetrad::new_Z());
+        queue.push(Tetrad::new_J());
+        queue.push(Tetrad::new_L());
+        queue.shuffle(&mut rng);
+        queue
+    }
+
 }
