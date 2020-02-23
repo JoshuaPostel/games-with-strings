@@ -98,7 +98,6 @@ impl Update for Grid<Tile> {
 
 trait Move {
 
-    //TODO rename to move
     fn move_tetrad(&mut self, grid: &Grid<Tile>, tetrad_mover: Box<dyn Fn(&mut Tetrad)>);
 }
 
@@ -121,6 +120,8 @@ struct Tetris {
     grid: Grid<Tile>,
     active_tetrad: Tetrad,
     tetrad_shadow: Tetrad,
+    tetrad_queue: Vec<Tetrad>,
+    held_tetrad: Tetrad,
 }
 
 impl Tetris {
@@ -255,13 +256,25 @@ fn main() {
         	tiles.push(Tile::new(x, y))
 		}
     }
-
     let g = Grid::new(width, height, tiles);
-    let mut tetrad_queue = Tetrad::new_queue();
 
+//    let width: usize = 10;
+//    let height: usize = 4;
+//    let mut tiles: Vec<Tile> = Vec::new();
+//    for x in 0..width {
+//    	for y in 0..height {
+//        	tiles.push(Tile::new(x, y))
+//		}
+//    }
+//    let next_tetrad_display = Grid::new(width, height, tiles);
+
+    let mut tetrad_queue = Tetrad::new_queue();
     let mut tetris = Tetris { grid: g, 
-        active_tetrad: tetrad_queue.pop().unwrap(), 
-        tetrad_shadow: Tetrad::new_L() };
+        active_tetrad: Tetrad::new_random(), 
+        tetrad_shadow: Tetrad::new_L(),
+        tetrad_queue: tetrad_queue,
+        held_tetrad: Tetrad::new_L()}; 
+
     tetris.update_shadow();
     tetris.grid.add_tetrad(&tetris.active_tetrad);
 
@@ -274,6 +287,7 @@ fn main() {
 
     while game_live {
         //print!("{}[2J", 27 as char);
+        //println!("{}", next_tetrad_display);
         println!("{}", tetris.grid);
 
         //TODO stay dry
@@ -307,11 +321,11 @@ fn main() {
                 tetris.grid.clear_rows(full_rows);
             }
 
-            let new_tetrad = match tetrad_queue.pop() {
+            let new_tetrad = match tetris.tetrad_queue.pop() {
                 Some(x) => x,
                 _ => {
-                    tetrad_queue = Tetrad::new_queue();
-                    tetrad_queue.pop().unwrap()
+                    tetris.tetrad_queue = Tetrad::new_queue();
+                    tetris.tetrad_queue.pop().unwrap()
                 }
             };
 
@@ -337,7 +351,14 @@ fn main() {
         loop {
             if counter == 0 {
                 //print!("{}[2J", 27 as char);
+                //println!("{}", next_tetrad_display);
                 println!("{}", tetris.grid);
+                println!("held:");
+                println!("{}", tetris.held_tetrad.render);
+                println!("next:");
+                for tetrad in &tetris.tetrad_queue {
+                    println!("{}", tetrad.render);
+                }
             }
             counter += 1;
             let mut hard_dropped = false;
@@ -367,6 +388,12 @@ fn main() {
             }
             //print!("{}[2J", 27 as char);
             println!("{}", tetris.grid);
+            println!("held:");
+            println!("{}", tetris.held_tetrad.render);
+            println!("next:");
+            for tetrad in &tetris.tetrad_queue {
+                println!("{}", tetrad.render);
+            }
             next_drop -= time_elapsed;
         }
     }

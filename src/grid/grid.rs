@@ -15,6 +15,14 @@ pub trait Depict {
 
 }
 
+pub fn colored_char(utf8: &[u8; 4], rgb: RGB) -> String {
+    let character = std::str::from_utf8(utf8).unwrap();
+    let colored_character = ansi_term::Color::RGB(rgb.r, rgb.g, rgb.b)
+        .paint(character)
+        .to_string();
+    colored_character
+}
+
 #[derive(Clone, Debug)]
 pub struct Grid<T: Depict> {
     pub width: usize,
@@ -30,12 +38,8 @@ impl<T: Depict> fmt::Display for Grid<T> {
             for tile in row {
                 //TODO figure out the ownership issue here
                 let utf8 = &tile.utf8();
-                let character = std::str::from_utf8(utf8).unwrap();
-                let color = &tile.color();
-                let colored_square = ansi_term::Color::RGB(color.r, color.g, color.b)
-                    .paint(character)
-                    .to_string();
-                display_string.push_str(&colored_square);
+                let character = colored_char(utf8, tile.color());
+                display_string.push_str(&character);
             }
             display_string.push_str("\r\n");
         }

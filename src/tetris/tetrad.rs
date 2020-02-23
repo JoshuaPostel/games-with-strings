@@ -11,7 +11,7 @@ use std::io::Read;
 use termion::raw::IntoRawMode;
 
 use crate::grid::rgb::RGB;
-use crate::grid::grid::{Grid, Depict};
+use crate::grid::grid::{Grid, Depict, colored_char};
 
 use super::tile::Tile;
 
@@ -22,7 +22,8 @@ const outlined_square: [u8; 4] = [0xE2, 0x96, 0xA3, 0x20];
 #[derive(Clone, Debug)]
 pub struct Tetrad {
     pub tiles: [Tile; 4],
-    pub center: (f32, f32)
+    pub center: (f32, f32),
+    pub render: String
 }
 
 
@@ -30,85 +31,165 @@ impl Tetrad {
 
     pub fn new_I() -> Tetrad {
         let light_blue  = RGB { r: 102, g: 255, b: 255 };
+        let character = colored_char(&outlined_square, light_blue);
+        let mut render = String::new();
+        render.push_str("\n\r");
+        render.push_str(&character);
+        render.push_str(&character);
+        render.push_str(&character);
+        render.push_str(&character);
+        render.push_str("\r");
+
         Tetrad {
             tiles: [Tile { empty: true, color: light_blue, utf8: outlined_square, row: 1, column: 3},
                     Tile { empty: true, color: light_blue, utf8: outlined_square, row: 1, column: 4},
                     Tile { empty: true, color: light_blue, utf8: outlined_square, row: 1, column: 5},
                     Tile { empty: true, color: light_blue, utf8: outlined_square, row: 1, column: 6}
             ],
-            center: (0.0, 5.0)
+            center: (0.0, 5.0),
+            render: render
         }
     }
 
     pub fn new_O() -> Tetrad {
         let yello  = RGB { r: 255, g: 255, b: 102 };
+        let character = colored_char(&outlined_square, yello);
+        let mut render = String::new();
+        render.push_str("\n\r");
+        render.push_str(&character);
+        render.push_str(&character);
+        render.push_str("\n\r");
+        render.push_str(&character);
+        render.push_str(&character);
+        render.push_str("\r");
+
         Tetrad {
             tiles: [Tile { empty: true, color: yello, utf8: outlined_square, row: 0, column: 4},
                     Tile { empty: true, color: yello, utf8: outlined_square, row: 1, column: 4},
                     Tile { empty: true, color: yello, utf8: outlined_square, row: 1, column: 5},
                     Tile { empty: true, color: yello, utf8: outlined_square, row: 0, column: 5}
             ],
-            center: (0.5, 4.5)
+            center: (0.5, 4.5),
+            render: render
         }
     }
 
     pub fn new_T() -> Tetrad {
         let purple  = RGB { r: 178, g: 102, b: 255 };
+        let character = colored_char(&outlined_square, purple);
+        let mut render = String::new();
+        render.push_str("\n\r");
+        render.push_str("  ");
+        render.push_str(&character);
+        render.push_str("\n\r");
+        render.push_str(&character);
+        render.push_str(&character);
+        render.push_str(&character);
+        render.push_str("\r");
+
         Tetrad {
             tiles: [Tile { empty: true, color: purple, utf8: outlined_square, row: 1, column: 3},
                     Tile { empty: true, color: purple, utf8: outlined_square, row: 1, column: 4},
                     Tile { empty: true, color: purple, utf8: outlined_square, row: 1, column: 5},
                     Tile { empty: true, color: purple, utf8: outlined_square, row: 0, column: 4}
             ],
-            center: (1.0, 4.0)
+            center: (1.0, 4.0),
+            render: render
         }
     }
 
     pub fn new_S() -> Tetrad {
         let green  = RGB { r: 102, g: 255, b: 102 };
+        let character = colored_char(&outlined_square, green);
+        let mut render = String::new();
+        render.push_str("\n\r");
+        render.push_str("  ");
+        render.push_str(&character);
+        render.push_str(&character);
+        render.push_str("\n\r");
+        render.push_str(&character);
+        render.push_str(&character);
+        render.push_str("\r");
+
         Tetrad {
             tiles: [Tile { empty: true, color: green, utf8: outlined_square, row: 1, column: 5},
                     Tile { empty: true, color: green, utf8: outlined_square, row: 1, column: 6},
                     Tile { empty: true, color: green, utf8: outlined_square, row: 0, column: 5},
                     Tile { empty: true, color: green, utf8: outlined_square, row: 0, column: 4}
             ],
-            center: (0.0, 5.0)
+            center: (0.0, 5.0),
+            render: render
         }
     }
 
     pub fn new_Z() -> Tetrad {
         let red  = RGB { r: 255, g: 0, b: 0 };
+        let character = colored_char(&outlined_square, red);
+        let mut render = String::new();
+        render.push_str("\n\r");
+        render.push_str(&character);
+        render.push_str(&character);
+        render.push_str("\n\r");
+        render.push_str("  ");
+        render.push_str(&character);
+        render.push_str(&character);
+        render.push_str("\r");
         Tetrad {
             tiles: [Tile { empty: true, color: red, utf8: outlined_square, row: 0, column: 4},
                     Tile { empty: true, color: red, utf8: outlined_square, row: 0, column: 5},
                     Tile { empty: true, color: red, utf8: outlined_square, row: 1, column: 3},
                     Tile { empty: true, color: red, utf8: outlined_square, row: 1, column: 4}
             ],
-            center: (0.0, 4.0)
+            center: (0.0, 4.0),
+            render: render
         }
     }
 
     pub fn new_J() -> Tetrad {
         let orange  = RGB { r: 255, g: 153, b: 51 };
+        let character = colored_char(&outlined_square, orange);
+        let mut render = String::new();
+        render.push_str("\n\r");
+        render.push_str(&character);
+        render.push_str("\n\r");
+        render.push_str(&character);
+        render.push_str(&character);
+        render.push_str(&character);
+        render.push_str("\r");
+
         Tetrad {
             tiles: [Tile { empty: true, color: orange, utf8: outlined_square, row: 0, column: 3},
                     Tile { empty: true, color: orange, utf8: outlined_square, row: 1, column: 4},
                     Tile { empty: true, color: orange, utf8: outlined_square, row: 1, column: 5},
                     Tile { empty: true, color: orange, utf8: outlined_square, row: 1, column: 3}
             ],
-            center: (1.0, 4.0)
+            center: (1.0, 4.0),
+            render: render
         }
     }
 
     pub fn new_L() -> Tetrad {
         let dark_blue  = RGB { r: 0, g: 0, b: 255 };
+        let character = colored_char(&outlined_square, dark_blue);
+        let mut render = String::new();
+        render.push_str("\n\r");
+        render.push_str("  ");
+        render.push_str("  ");
+        render.push_str(&character);
+        render.push_str("\n\r");
+        render.push_str(&character);
+        render.push_str(&character);
+        render.push_str(&character);
+        render.push_str("\r");
+
         Tetrad {
             tiles: [Tile { empty: true, color: dark_blue, utf8: outlined_square, row: 0, column: 6},
                     Tile { empty: true, color: dark_blue, utf8: outlined_square, row: 1, column: 4},
                     Tile { empty: true, color: dark_blue, utf8: outlined_square, row: 1, column: 5},
                     Tile { empty: true, color: dark_blue, utf8: outlined_square, row: 1, column: 6}
             ],
-            center: (1.0, 5.0)
+            center: (1.0, 5.0),
+            render: render
         }
     }
 
