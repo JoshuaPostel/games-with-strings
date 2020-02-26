@@ -16,7 +16,7 @@ use prettytable::Table;
 use grid::grid::rgb::{RGB};
 use grid::grid::grid::{Grid, Depict};
 use grid::tetris::tile::Tile;
-use grid::tetris::tetrad::Tetrad;
+use grid::tetris::tetrad::{Tetrad, Queue};
 
 const square: [u8; 4] = [0xE2, 0x96, 0xA0, 0x20];
 const square_outline: [u8; 4] = [0xE2, 0x96, 0xA1, 0x20];
@@ -122,7 +122,7 @@ struct Tetris {
     grid: Grid<Tile>,
     active_tetrad: Tetrad,
     tetrad_shadow: Tetrad,
-    tetrad_queue: Vec<Tetrad>,
+    queue: Queue,
     held_tetrad: Tetrad,
 }
 
@@ -243,12 +243,16 @@ impl Tetris {
     }
 
 
-    fn display(&self) {
+    //TODO remove mut?
+    //better way than double reverse()?
+    fn display(&mut self) {
         let mut display_queue = String::new();
-        for tetrad in &self.tetrad_queue {
+        self.queue.tetrads.reverse();
+        for tetrad in &self.queue.tetrads[..5] {
             display_queue.push_str(&tetrad.render);
             display_queue.push_str("\n");
         }
+        self.queue.tetrads.reverse();
         let mut display_table = Table::new();
         display_table.add_row(
             row![self.held_tetrad.render,
@@ -278,11 +282,11 @@ fn main() {
     }
     let g = Grid::new(width, height, tiles);
 
-    let mut tetrad_queue = Tetrad::new_queue();
+    let mut queue = Queue::new();
     let mut tetris = Tetris { grid: g, 
         active_tetrad: Tetrad::new_random(), 
         tetrad_shadow: Tetrad::new_L(),
-        tetrad_queue: tetrad_queue,
+        queue: queue,
         held_tetrad: Tetrad::new_L()}; 
 
     tetris.update_shadow();
@@ -330,15 +334,7 @@ fn main() {
                 tetris.grid.clear_rows(full_rows);
             }
 
-            let new_tetrad = match tetris.tetrad_queue.pop() {
-                Some(x) => x,
-                _ => {
-                    tetris.tetrad_queue = Tetrad::new_queue();
-                    tetris.tetrad_queue.pop().unwrap()
-                }
-            };
-
-            tetris.active_tetrad = new_tetrad;
+            tetris.active_tetrad = tetris.queue.next();
             tetris.tetrad_shadow = tetris.get_shadow();
             tetris.grid.add_tetrad(&tetris.tetrad_shadow);
 

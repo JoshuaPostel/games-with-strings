@@ -58,6 +58,7 @@ impl Tetrad {
         render.push_str(&character);
         render.push_str(&character);
         render.push_str("  ");
+        render.push_str("  ");
         render.push_str("\n");
         render.push_str(&character);
         render.push_str(&character);
@@ -80,6 +81,7 @@ impl Tetrad {
         render.push_str("\n");
         render.push_str("  ");
         render.push_str(&character);
+        render.push_str("  ");
         render.push_str("  ");
         render.push_str("\n");
         render.push_str(&character);
@@ -129,6 +131,7 @@ impl Tetrad {
         render.push_str(&character);
         render.push_str(&character);
         render.push_str("  ");
+        render.push_str("  ");
         render.push_str("\n");
         render.push_str("  ");
         render.push_str(&character);
@@ -151,6 +154,8 @@ impl Tetrad {
         let mut render = String::new();
         render.push_str("\n");
         render.push_str(&character);
+        render.push_str("  ");
+        render.push_str("  ");
         render.push_str("  ");
         render.push_str("\n");
         render.push_str(&character);
@@ -208,8 +213,30 @@ impl Tetrad {
         }
     
     }
+}
 
-    pub fn new_queue() -> Vec<Tetrad> {
+pub struct Queue {
+    pub tetrads: Vec<Tetrad>
+}
+
+impl Queue {
+
+    pub fn new() -> Queue {
+        Queue { tetrads: Queue::new_shuffled_seven() }
+    }
+    
+    pub fn next(&mut self) -> Tetrad {
+        let next_tetrad = match self.tetrads.len() {
+            0 ... 6 => {
+                self.tetrads.append(&mut Queue::new_shuffled_seven());
+                self.tetrads.pop().unwrap()
+            },
+            _ => self.tetrads.pop().unwrap() 
+        };
+        next_tetrad
+    }
+
+    fn new_shuffled_seven() -> Vec<Tetrad> {
         let mut rng = rand::thread_rng();
         let mut queue: Vec<Tetrad> = Vec::new();
         queue.push(Tetrad::new_I());
@@ -222,5 +249,4 @@ impl Tetrad {
         queue.shuffle(&mut rng);
         queue
     }
-
 }

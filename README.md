@@ -4,7 +4,7 @@
 
 ### Tetris
 - [x] next tetrad not full random
-- [ ] display next tetrads
+- [x] display next tetrads
 - [ ] hold tetrad
 - [ ] score
 - [ ] refactor control loop
