@@ -4,14 +4,11 @@ extern crate ndarray;
 extern crate itertools;
 extern crate termion;
 
-use rand::Rng;
-use std::io::Read;
-use termion::raw::IntoRawMode;
 
 use crate::grid::rgb::RGB;
-use crate::grid::grid::{Grid, Depict};
+use crate::grid::grid::Depict;
 
-const square: [u8; 4] = [0xE2, 0x96, 0xA0, 0x20];
+const SQUARE: [u8; 4] = [0xE2, 0x96, 0xA0, 0x20];
 
 #[derive(Copy, Clone, Debug)]
 pub struct Tile {
@@ -27,7 +24,7 @@ impl Default for Tile {
         Tile {
             empty: true,
             color: RGB { r: 47, g: 79, b: 79},
-            utf8: square,
+            utf8: SQUARE,
             row: 0,
             column: 0,
         }
@@ -52,9 +49,9 @@ impl Depict for Tile {
     }
 }
 
-impl Tile {
-
-    fn advance(&mut self) {
-        self.row += 1;
-    }
-}
+//impl Tile {
+//
+//    fn advance(&mut self) {
+//        self.row += 1;
+//    }
+//}

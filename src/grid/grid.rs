@@ -3,8 +3,6 @@ extern crate rand;
 extern crate ndarray;
 
 use std::fmt;
-use std::cmp;
-use rand::Rng;
 
 use super::rgb::RGB;
 

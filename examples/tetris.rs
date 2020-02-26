@@ -7,20 +7,17 @@ extern crate itertools;
 extern crate termion;
 #[macro_use] extern crate prettytable;
 
-use rand::Rng;
-use rand::prelude::SliceRandom;
 use std::io::Read;
 use termion::raw::IntoRawMode;
 use prettytable::Table;
 
-use grid::grid::rgb::{RGB};
-use grid::grid::grid::{Grid, Depict};
+use grid::grid::grid::Grid;
 use grid::tetris::tile::Tile;
 use grid::tetris::tetrad::{Tetrad, Queue};
 
-const square: [u8; 4] = [0xE2, 0x96, 0xA0, 0x20];
-const square_outline: [u8; 4] = [0xE2, 0x96, 0xA1, 0x20];
-const outlined_square: [u8; 4] = [0xE2, 0x96, 0xA3, 0x20];
+//const SQUARE: [u8; 4] = [0xE2, 0x96, 0xA0, 0x20];
+const SQUARE_OUTLINE: [u8; 4] = [0xE2, 0x96, 0xA1, 0x20];
+//const OUTLINED_SQUARE: [u8; 4] = [0xE2, 0x96, 0xA3, 0x20];
 
 trait Update {
 
@@ -123,7 +120,7 @@ struct Tetris {
     active_tetrad: Tetrad,
     tetrad_shadow: Tetrad,
     queue: Queue,
-    held_tetrad: Tetrad,
+    held_tetrad: Option<String>,
 }
 
 impl Tetris {
@@ -139,14 +136,14 @@ impl Tetris {
 
     fn get_shadow(&self) -> Tetrad {
         let mut shadow = self.active_tetrad.clone();
-        let mut rows_to_drop = 0;
+        //let mut rows_to_drop = 0;
         while shadow.tiles.iter().all(|tile| self.grid.valid_tile(*tile)) {
             shadow.tiles.iter_mut().for_each(|tile| tile.row += 1);
-            rows_to_drop += 1;
+        //    rows_to_drop += 1;
         }
         for tile in shadow.tiles.iter_mut() {
             tile.row -= 1;
-            tile.utf8 = square_outline;
+            tile.utf8 = SQUARE_OUTLINE;
         }
         shadow
     }
@@ -255,13 +252,37 @@ impl Tetris {
         self.queue.tetrads.reverse();
         let mut display_table = Table::new();
         display_table.add_row(
-            row![self.held_tetrad.render,
+            row![self.render_held_tetrad(),
                 self.grid.display_string(),
                 display_queue]);
 
         let display_string = display_table.to_string().replace("\n","\n\r");
         println!("{}[2J", 27 as char);
         println!("{}", display_string);
+    }
+
+    fn render_held_tetrad(&self) -> String {
+        match &self.held_tetrad {
+            Some(name) => Tetrad::new_by_name(name).render,
+            None => "        ".to_string()
+        }
+    }
+
+    //TODO needs an "if legal" check
+    fn hold(&mut self) {
+        let active_tetrad_name = self.active_tetrad.name.clone();
+        self.grid.remove_tetrad(&self.active_tetrad);
+        match &self.held_tetrad {
+            Some(name) => {
+                self.active_tetrad = Tetrad::new_by_name(&name);
+                self.update_shadow();
+            },
+            None => {
+                self.active_tetrad = self.queue.next();
+                self.update_shadow();
+            }
+        }
+        self.held_tetrad = Some(active_tetrad_name);
     }
 }
 
@@ -282,18 +303,18 @@ fn main() {
     }
     let g = Grid::new(width, height, tiles);
 
-    let mut queue = Queue::new();
+    let queue = Queue::new();
     let mut tetris = Tetris { grid: g, 
         active_tetrad: Tetrad::new_random(), 
-        tetrad_shadow: Tetrad::new_L(),
+        tetrad_shadow: Tetrad::new_l(),
         queue: queue,
-        held_tetrad: Tetrad::new_L()}; 
+        held_tetrad: None}; 
 
     tetris.update_shadow();
     tetris.grid.add_tetrad(&tetris.active_tetrad);
 
-    let stdout = std::io::stdout();
-    let mut stdout = stdout.lock().into_raw_mode().unwrap();
+    let _stdout = std::io::stdout();
+    let _stdout = _stdout.lock().into_raw_mode().unwrap();
     let mut input = termion::async_stdin().bytes();
 
     let mut game_live = true;
@@ -370,6 +391,7 @@ fn main() {
                 Some(Ok(b'g')) => tetris.move_down(),
                 Some(Ok(b'd')) => tetris.rotate_left(),
                 Some(Ok(b'f')) => tetris.rotate_right(),
+                Some(Ok(b'h')) => tetris.hold(),
                 Some(Ok(b' ')) => {
                     tetris.hard_drop();
                     hard_dropped = true;
