@@ -30,7 +30,27 @@ pub struct Grid<T: Depict> {
     pub grid: ndarray::ArrayBase<ndarray::OwnedRepr<T>, ndarray::Dim<[usize; 2]>>,
 }
 
+impl<T: Depict> Grid<T> {
+    
+    pub fn display_string(&self) -> String {
+        let mut display_string: String = String::new();
+        for row in self.grid.genrows() {
+            for tile in row {
+                //TODO figure out the ownership issue here
+                let utf8 = &tile.utf8();
+                let character = colored_char(utf8, tile.color());
+                display_string.push_str(&character);
+            }
+            //display_string.push_str("\n\r");
+            display_string.push_str("\n");
+        }
+        display_string
+    }
+}
+
 impl<T: Depict> fmt::Display for Grid<T> {
+
+    //TODO stay dry
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut display_string: String = String::new();
         display_string.push_str("\x1B[2J");

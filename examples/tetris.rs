@@ -5,11 +5,13 @@ extern crate rand;
 extern crate ndarray;
 extern crate itertools;
 extern crate termion;
+#[macro_use] extern crate prettytable;
 
 use rand::Rng;
 use rand::prelude::SliceRandom;
 use std::io::Read;
 use termion::raw::IntoRawMode;
+use prettytable::Table;
 
 use grid::grid::rgb::{RGB};
 use grid::grid::grid::{Grid, Depict};
@@ -239,6 +241,24 @@ impl Tetris {
 
         self.move_active_tetrad(Box::new(rotate_tetrad_right))
     }
+
+
+    fn display(&self) {
+        let mut display_queue = String::new();
+        for tetrad in &self.tetrad_queue {
+            display_queue.push_str(&tetrad.render);
+            display_queue.push_str("\n");
+        }
+        let mut display_table = Table::new();
+        display_table.add_row(
+            row![self.held_tetrad.render,
+                self.grid.display_string(),
+                display_queue]);
+
+        let display_string = display_table.to_string().replace("\n","\n\r");
+        println!("{}[2J", 27 as char);
+        println!("{}", display_string);
+    }
 }
 
 fn vecs_match<T: PartialEq>(a: &Vec<T>, b: &Vec<T>) -> bool {
@@ -258,16 +278,6 @@ fn main() {
     }
     let g = Grid::new(width, height, tiles);
 
-//    let width: usize = 10;
-//    let height: usize = 4;
-//    let mut tiles: Vec<Tile> = Vec::new();
-//    for x in 0..width {
-//    	for y in 0..height {
-//        	tiles.push(Tile::new(x, y))
-//		}
-//    }
-//    let next_tetrad_display = Grid::new(width, height, tiles);
-
     let mut tetrad_queue = Tetrad::new_queue();
     let mut tetris = Tetris { grid: g, 
         active_tetrad: Tetrad::new_random(), 
@@ -286,9 +296,8 @@ fn main() {
 
 
     while game_live {
-        //print!("{}[2J", 27 as char);
-        //println!("{}", next_tetrad_display);
-        println!("{}", tetris.grid);
+
+        tetris.display();
 
         //TODO stay dry
         let mut rows_before: Vec<usize> = Vec::new();
@@ -350,15 +359,7 @@ fn main() {
         let mut counter = 0;
         loop {
             if counter == 0 {
-                //print!("{}[2J", 27 as char);
-                //println!("{}", next_tetrad_display);
-                println!("{}", tetris.grid);
-                println!("held:");
-                println!("{}", tetris.held_tetrad.render);
-                println!("next:");
-                for tetrad in &tetris.tetrad_queue {
-                    println!("{}", tetrad.render);
-                }
+                tetris.display();
             }
             counter += 1;
             let mut hard_dropped = false;
@@ -386,14 +387,8 @@ fn main() {
             if hard_dropped {
                 break;
             }
-            //print!("{}[2J", 27 as char);
-            println!("{}", tetris.grid);
-            println!("held:");
-            println!("{}", tetris.held_tetrad.render);
-            println!("next:");
-            for tetrad in &tetris.tetrad_queue {
-                println!("{}", tetrad.render);
-            }
+
+            tetris.display();
             next_drop -= time_elapsed;
         }
     }
