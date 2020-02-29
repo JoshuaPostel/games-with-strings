@@ -257,7 +257,7 @@ impl Tetris {
                 display_queue]);
 
         let display_string = display_table.to_string().replace("\n","\n\r");
-        println!("{}[2J", 27 as char);
+        //println!("{}[2J", 27 as char);
         println!("{}", display_string);
     }
 
@@ -319,6 +319,7 @@ fn main() {
 
     let mut game_live = true;
 
+    let mut can_hold = true;
 
     while game_live {
 
@@ -341,6 +342,7 @@ fn main() {
             tetrad_columns.push(tetris.active_tetrad.tiles[i].column);
         }
 
+        //TODO refactor in "on new" function
         if vecs_match(&tetrad_rows, &rows_before) && vecs_match(&tetrad_columns, &columns_before) {
 
             tetris.active_tetrad.tiles.iter_mut().for_each(|tile| tile.empty = false);
@@ -358,6 +360,8 @@ fn main() {
             tetris.active_tetrad = tetris.queue.next();
             tetris.tetrad_shadow = tetris.get_shadow();
             tetris.grid.add_tetrad(&tetris.tetrad_shadow);
+
+            can_hold = true;
 
             let valid_move = tetris.active_tetrad.tiles
                 .iter()
@@ -391,7 +395,12 @@ fn main() {
                 Some(Ok(b'g')) => tetris.move_down(),
                 Some(Ok(b'd')) => tetris.rotate_left(),
                 Some(Ok(b'f')) => tetris.rotate_right(),
-                Some(Ok(b'h')) => tetris.hold(),
+                Some(Ok(b'h')) => {
+                    if can_hold {
+                        tetris.hold();
+                        can_hold = false;
+                    }
+                },
                 Some(Ok(b' ')) => {
                     tetris.hard_drop();
                     hard_dropped = true;
@@ -404,6 +413,7 @@ fn main() {
             }
             if hard_dropped {
                 break;
+                can_hold = true;
             }
 
             tetris.display();
