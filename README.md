@@ -5,6 +5,8 @@
 ### Tetris
 - [x] next tetrad not full random
 - [x] display next tetrads
-- [ ] hold tetrad
+- [x] hold tetrad
 - [ ] score
+- [x] speed up
 - [ ] refactor control loop
+- [ ] music

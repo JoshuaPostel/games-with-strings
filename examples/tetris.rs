@@ -5,9 +5,12 @@ extern crate rand;
 extern crate ndarray;
 extern crate itertools;
 extern crate termion;
+extern crate rodio;
 #[macro_use] extern crate prettytable;
 
 use std::io::Read;
+use std::io::BufReader;
+use std::collections::HashMap;
 use termion::raw::IntoRawMode;
 use prettytable::Table;
 
@@ -121,9 +124,16 @@ struct Tetris {
     tetrad_shadow: Tetrad,
     queue: Queue,
     held_tetrad: Option<String>,
+    score: usize,
+    lines: usize,
+    level: usize,
 }
 
 impl Tetris {
+
+    fn update_level(&mut self) {
+        self.level = (self.lines / 10) + 1;
+    }
 
     fn move_active_tetrad(&mut self, tetrad_mover: Box<dyn Fn(&mut Tetrad)>) { 
         let mut tetrad = self.active_tetrad.clone();
@@ -243,28 +253,41 @@ impl Tetris {
     //TODO remove mut?
     //better way than double reverse()?
     fn display(&mut self) {
-        let mut display_queue = String::new();
+        let mut display_queue = String::from("\nnext:\n");
         self.queue.tetrads.reverse();
-        for tetrad in &self.queue.tetrads[..5] {
+        for tetrad in &self.queue.tetrads[..6] {
             display_queue.push_str(&tetrad.render);
             display_queue.push_str("\n");
         }
         self.queue.tetrads.reverse();
+
+        let mut stats = String::from("\nscore:\n");
+        stats.push_str(&self.score.to_string());
+        stats.push_str("\n\nlines:\n");
+        stats.push_str(&self.lines.to_string());
+        stats.push_str("\n\nlevel:\n");
+        stats.push_str(&self.level.to_string());
+
+        let mut held = String::from("\nheld:\n");
+        held.push_str(&self.render_held_tetrad());
+
+        let mut held_and_stats = table!([held], [stats]);
+        held_and_stats.set_format(*prettytable::format::consts::FORMAT_NO_BORDER_LINE_SEPARATOR);
         let mut display_table = Table::new();
         display_table.add_row(
-            row![self.render_held_tetrad(),
+            row![held_and_stats,
                 self.grid.display_string(),
                 display_queue]);
 
         let display_string = display_table.to_string().replace("\n","\n\r");
-        //println!("{}[2J", 27 as char);
+        println!("{}[2J", 27 as char);
         println!("{}", display_string);
     }
 
     fn render_held_tetrad(&self) -> String {
         match &self.held_tetrad {
             Some(name) => Tetrad::new_by_name(name).render,
-            None => "        ".to_string()
+            None => "        \n\n\n".to_string()
         }
     }
 
@@ -293,6 +316,21 @@ fn vecs_match<T: PartialEq>(a: &Vec<T>, b: &Vec<T>) -> bool {
 
 fn main() {
 
+    let device = rodio::default_output_device().unwrap();
+    let sink = rodio::Sink::new(&device);
+
+    let file = std::fs::File::open("Tetris_theme.ogg.mp3").unwrap();
+    sink.append(rodio::Decoder::new(BufReader::new(file)).unwrap());
+
+    //sink.sleep_until_end();
+
+    //TODO move out of main
+    let mut score_table: HashMap<usize, usize> = HashMap::new();
+    score_table.insert(1, 100);
+    score_table.insert(2, 300);
+    score_table.insert(3, 500);
+    score_table.insert(4, 1000);
+
     let width: usize = 10;
     let height: usize = 24;
     let mut tiles: Vec<Tile> = Vec::new();
@@ -303,12 +341,16 @@ fn main() {
     }
     let g = Grid::new(width, height, tiles);
 
+    //TODO first active tetrad from queue, not random
     let queue = Queue::new();
     let mut tetris = Tetris { grid: g, 
         active_tetrad: Tetrad::new_random(), 
         tetrad_shadow: Tetrad::new_l(),
         queue: queue,
-        held_tetrad: None}; 
+        held_tetrad: None,
+        score: 0,
+        lines: 0,
+        level: 1}; 
 
     tetris.update_shadow();
     tetris.grid.add_tetrad(&tetris.active_tetrad);
@@ -353,8 +395,12 @@ fn main() {
             }
 
             let full_rows = tetris.grid.full_rows();
-            if full_rows.len() > 0 {
+            let n_full_rows = full_rows.len();
+            if n_full_rows > 0 {
                 tetris.grid.clear_rows(full_rows);
+                tetris.lines += n_full_rows;
+                tetris.update_level();
+                tetris.score += score_table.get(&n_full_rows).unwrap() * tetris.level;
             }
 
             tetris.active_tetrad = tetris.queue.next();
@@ -373,7 +419,8 @@ fn main() {
             }
         }
 
-        let mut next_drop = std::time::Duration::from_millis(1000);
+        let advance_rate = 1000 - tetris.level * 100;
+        let mut next_drop = std::time::Duration::from_millis(advance_rate as u64);
         let last_drop = std::time::Instant::now();
 
         //TODO replace counter with time compairison?
@@ -413,7 +460,6 @@ fn main() {
             }
             if hard_dropped {
                 break;
-                can_hold = true;
             }
 
             tetris.display();

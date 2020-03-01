@@ -37,6 +37,7 @@ impl Tetrad {
         render.push_str(&character);
         render.push_str(&character);
         render.push_str(&character);
+        render.push_str("\n ");
 
         Tetrad {
             tiles: [Tile { empty: true, color: light_blue, utf8: OUTLINED_SQUARE, row: 1, column: 3},
@@ -252,7 +253,9 @@ impl Queue {
     pub fn next(&mut self) -> Tetrad {
         let next_tetrad = match self.tetrads.len() {
             0 ..= 6 => {
+                self.tetrads.reverse();
                 self.tetrads.append(&mut Queue::new_shuffled_seven());
+                self.tetrads.reverse();
                 self.tetrads.pop().unwrap()
             },
             _ => self.tetrads.pop().unwrap() 
