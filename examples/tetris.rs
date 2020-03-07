@@ -196,7 +196,7 @@ impl Tetris {
                 tetrad.center.1 -= 1.0;
             }
         }
-        let was_moved = self.move_active_tetrad(Box::new(move_tetrad_left));
+        let _was_moved = self.move_active_tetrad(Box::new(move_tetrad_left));
     }
 
     fn move_right(&mut self) { 
@@ -204,7 +204,7 @@ impl Tetris {
             tetrad.tiles.iter_mut().for_each(|tile| tile.column += 1);
             tetrad.center.1 += 1.0;
         }
-        let was_moved = self.move_active_tetrad(Box::new(move_tetrad_right));
+        let _was_moved = self.move_active_tetrad(Box::new(move_tetrad_right));
     }
     
     fn move_down(&mut self, score: usize) { 
@@ -243,7 +243,7 @@ impl Tetris {
             Tetris::rotate_tetrad(tetrad, rotation_matrix)
         }
 
-        let was_moved = self.move_active_tetrad(Box::new(rotate_tetrad_left));
+        let _was_moved = self.move_active_tetrad(Box::new(rotate_tetrad_left));
     }
 
     fn rotate_right(&mut self) {
@@ -254,7 +254,7 @@ impl Tetris {
             Tetris::rotate_tetrad(tetrad, rotation_matrix)
         }
 
-        let was_moved = self.move_active_tetrad(Box::new(rotate_tetrad_right));
+        let _was_moved = self.move_active_tetrad(Box::new(rotate_tetrad_right));
     }
 
 
@@ -342,9 +342,9 @@ fn main() {
     let g = Grid::new(width, height, tiles);
 
     //TODO first active tetrad from queue, not random
-    let queue = Queue::new();
+    let mut queue = Queue::new();
     let mut tetris = Tetris { grid: g, 
-        active_tetrad: Tetrad::new_random(), 
+        active_tetrad: queue.next(),
         tetrad_shadow: Tetrad::new_l(),
         queue: queue,
         held_tetrad: None,
