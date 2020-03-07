@@ -100,12 +100,12 @@ impl Update for Grid<Tile> {
 
 trait Move {
 
-    fn move_tetrad(&mut self, grid: &Grid<Tile>, tetrad_mover: Box<dyn Fn(&mut Tetrad)>);
+    fn move_tetrad(&mut self, grid: &Grid<Tile>, tetrad_mover: Box<dyn Fn(&mut Tetrad)>) -> bool;
 }
 
 impl Move for Tetrad {
 
-    fn move_tetrad(&mut self, grid: &Grid<Tile>, tetrad_mover: Box<dyn Fn(&mut Tetrad)>) {
+    fn move_tetrad(&mut self, grid: &Grid<Tile>, tetrad_mover: Box<dyn Fn(&mut Tetrad)>) -> bool {
         let mut new_tetrad = self.clone();
         tetrad_mover(&mut new_tetrad);
 
@@ -115,6 +115,7 @@ impl Move for Tetrad {
         if valid_move {    
             tetrad_mover(self);
         }
+        valid_move
     }
 }
 
@@ -135,13 +136,14 @@ impl Tetris {
         self.level = (self.lines / 10) + 1;
     }
 
-    fn move_active_tetrad(&mut self, tetrad_mover: Box<dyn Fn(&mut Tetrad)>) { 
+    fn move_active_tetrad(&mut self, tetrad_mover: Box<dyn Fn(&mut Tetrad)>) -> bool { 
         let mut tetrad = self.active_tetrad.clone();
         self.grid.remove_tetrad(&self.active_tetrad);
-        tetrad.move_tetrad(&self.grid, tetrad_mover);
+        let was_moved = tetrad.move_tetrad(&self.grid, tetrad_mover);
         self.grid.add_tetrad(&tetrad);
         self.active_tetrad = tetrad;
         self.update_shadow();
+        was_moved
     }
 
     fn get_shadow(&self) -> Tetrad {
@@ -170,12 +172,15 @@ impl Tetris {
         self.grid.remove_tetrad(&self.active_tetrad);
         let color = self.active_tetrad.tiles[0].color;
         let utf8 = self.active_tetrad.tiles[0].utf8;
+        let from_row = &self.active_tetrad.tiles[0].row;
+        let to_row = &self.tetrad_shadow.tiles[0].row;
+        let rows_dropped = to_row - from_row;
+        self.score += rows_dropped * self.level * 2;
         self.active_tetrad.tiles = self.tetrad_shadow.tiles;
         for tile in self.active_tetrad.tiles.iter_mut() {
             tile.color = color;
             tile.utf8 = utf8;
         }
-        //self.move_active_tetrad(Box::new(hard_drop_tetrad))
     }
 
     //TODO
@@ -191,7 +196,7 @@ impl Tetris {
                 tetrad.center.1 -= 1.0;
             }
         }
-        self.move_active_tetrad(Box::new(move_tetrad_left))
+        let was_moved = self.move_active_tetrad(Box::new(move_tetrad_left));
     }
 
     fn move_right(&mut self) { 
@@ -199,15 +204,18 @@ impl Tetris {
             tetrad.tiles.iter_mut().for_each(|tile| tile.column += 1);
             tetrad.center.1 += 1.0;
         }
-        self.move_active_tetrad(Box::new(move_tetrad_right))
+        let was_moved = self.move_active_tetrad(Box::new(move_tetrad_right));
     }
     
-    fn move_down(&mut self) { 
+    fn move_down(&mut self, score: usize) { 
         fn move_tetrad_down(tetrad: &mut Tetrad) {
             tetrad.tiles.iter_mut().for_each(|tile| tile.row += 1);
             tetrad.center.0 += 1.0;
         }
-        self.move_active_tetrad(Box::new(move_tetrad_down))
+        let was_moved = self.move_active_tetrad(Box::new(move_tetrad_down));
+        if was_moved {
+            self.score += score;
+        }
     }
 
     fn rotate_tetrad(tetrad: &mut Tetrad, rotation_matrix: [[f32; 2]; 2]) {
@@ -235,7 +243,7 @@ impl Tetris {
             Tetris::rotate_tetrad(tetrad, rotation_matrix)
         }
 
-        self.move_active_tetrad(Box::new(rotate_tetrad_left))
+        let was_moved = self.move_active_tetrad(Box::new(rotate_tetrad_left));
     }
 
     fn rotate_right(&mut self) {
@@ -246,7 +254,7 @@ impl Tetris {
             Tetris::rotate_tetrad(tetrad, rotation_matrix)
         }
 
-        self.move_active_tetrad(Box::new(rotate_tetrad_right))
+        let was_moved = self.move_active_tetrad(Box::new(rotate_tetrad_right));
     }
 
 
@@ -374,7 +382,7 @@ fn main() {
             rows_before.push(tetris.active_tetrad.tiles[i].row);
             columns_before.push(tetris.active_tetrad.tiles[i].column);
         }
-        tetris.move_down();
+        tetris.move_down(0);
 
         //TODO stay dry
         let mut tetrad_rows: Vec<usize> = Vec::new();
@@ -439,7 +447,7 @@ fn main() {
                 None => continue,
                 Some(Ok(b'j')) => tetris.move_left(),
                 Some(Ok(b'k')) => tetris.move_right(),
-                Some(Ok(b'g')) => tetris.move_down(),
+                Some(Ok(b'g')) => tetris.move_down(tetris.level),
                 Some(Ok(b'd')) => tetris.rotate_left(),
                 Some(Ok(b'f')) => tetris.rotate_right(),
                 Some(Ok(b'h')) => {

@@ -6,7 +6,7 @@
 - [x] next tetrad not full random
 - [x] display next tetrads
 - [x] hold tetrad
-- [ ] score
+- [x] score
 - [x] speed up
-- [ ] refactor control loop
 - [ ] music
+- [ ] refactor control loop

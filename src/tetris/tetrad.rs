@@ -109,11 +109,12 @@ impl Tetrad {
         let character = colored_char(&OUTLINED_SQUARE, green);
         let mut render = String::new();
         render.push_str("\n");
+        render.push_str(&character);
+        render.push_str(&character);
         render.push_str("  ");
-        render.push_str(&character);
-        render.push_str(&character);
         render.push_str("  ");
         render.push_str("\n");
+        render.push_str("  ");
         render.push_str(&character);
         render.push_str(&character);
 
@@ -135,12 +136,11 @@ impl Tetrad {
         let character = colored_char(&OUTLINED_SQUARE, red);
         let mut render = String::new();
         render.push_str("\n");
-        render.push_str(&character);
-        render.push_str(&character);
         render.push_str("  ");
+        render.push_str(&character);
+        render.push_str(&character);
         render.push_str("  ");
         render.push_str("\n");
-        render.push_str("  ");
         render.push_str(&character);
         render.push_str(&character);
 
