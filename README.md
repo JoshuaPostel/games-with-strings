@@ -8,5 +8,5 @@
 - [x] hold tetrad
 - [x] score
 - [x] speed up
-- [ ] music
+- [x] music
 - [ ] refactor control loop

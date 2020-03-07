@@ -324,14 +324,6 @@ fn vecs_match<T: PartialEq>(a: &Vec<T>, b: &Vec<T>) -> bool {
 
 fn main() {
 
-    let device = rodio::default_output_device().unwrap();
-    let sink = rodio::Sink::new(&device);
-
-    let file = std::fs::File::open("Tetris_theme.ogg.mp3").unwrap();
-    sink.append(rodio::Decoder::new(BufReader::new(file)).unwrap());
-
-    //sink.sleep_until_end();
-
     //TODO move out of main
     let mut score_table: HashMap<usize, usize> = HashMap::new();
     score_table.insert(1, 100);
@@ -367,11 +359,19 @@ fn main() {
     let _stdout = _stdout.lock().into_raw_mode().unwrap();
     let mut input = termion::async_stdin().bytes();
 
-    let mut game_live = true;
+    let device = rodio::default_output_device().unwrap();
+    let sink = rodio::Sink::new(&device);
+    sink.set_volume(0.1);
 
     let mut can_hold = true;
+    let mut game_live = true;
 
     while game_live {
+
+        if sink.empty() {
+            let file = std::fs::File::open("Tetris_theme.ogg.mp3").unwrap();
+            sink.append(rodio::Decoder::new(BufReader::new(file)).unwrap());
+        }
 
         tetris.display();
 
