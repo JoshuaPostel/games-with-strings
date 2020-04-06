@@ -352,6 +352,26 @@ fn on_new_tetrad(tetris: &mut Tetris, score_table: &HashMap<usize, usize>) -> bo
 
 fn main() {
 
+    println!(
+"
+left: left arrow
+
+right: right arrow
+
+hard drop: up arrow or space
+
+down: down arrow
+
+rotate left: d
+
+rotate right: f
+
+hold: s
+
+quit: q
+"
+);
+
     //TODO move out of main: https://crates.io/crates/phf
     let mut score_table: HashMap<usize, usize> = HashMap::new();
     score_table.insert(1, 100);
@@ -393,7 +413,16 @@ fn main() {
     let mut can_hold = true;
     let mut game_live = true;
 
-    tetris.display();
+    loop {
+        match input.next() {
+            Some(Ok(13)) => break, //enter key
+            Some(Ok(b'q')) => {
+                game_live = false;
+                break
+            } 
+            _ => continue,
+        }
+    }
 
     while game_live {
 
@@ -447,6 +476,9 @@ fn main() {
                 Some(Ok(b'q')) => {
                     game_live = false;
                     break;
+                },
+                Some(foo) => {
+                    println!("foo:{:?}", foo);
                 },
                 _ => break
             }
