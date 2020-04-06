@@ -233,6 +233,14 @@ impl Tetrad {
             _ => Tetrad::new_l(),
         }
     }
+
+    pub fn get_position(&self) -> Vec<(usize, usize)> {
+        let mut position: Vec<(usize, usize)> = Vec::new();
+		for tile in self.tiles.iter() {
+			position.push((tile.row, tile.column))
+		}
+		position
+    }
 }
 
 #[derive(Default)]

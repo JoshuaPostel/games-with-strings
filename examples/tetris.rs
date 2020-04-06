@@ -57,8 +57,8 @@ impl Update for Grid<Tile> {
     }
 
     fn valid_tile(&self, tile: Tile) -> bool {
-        let row_good = 0 <= tile.row && tile.row < self.height;
-        let column_good = 0 <= tile.column && tile.column < self.width;
+        let row_good = tile.row < self.height;
+        let column_good = tile.column < self.width;
         let mut location_ocupied = false;
         if row_good && column_good {
             location_ocupied = self.grid[[tile.row, tile.column]].empty;
@@ -142,13 +142,14 @@ impl Tetris {
 
     fn get_shadow(&self) -> Tetrad {
         let mut shadow = self.active_tetrad.clone();
-        //let mut rows_to_drop = 0;
         while shadow.tiles.iter().all(|tile| self.grid.valid_tile(*tile)) {
             shadow.tiles.iter_mut().for_each(|tile| tile.row += 1);
-        //    rows_to_drop += 1;
         }
         for tile in shadow.tiles.iter_mut() {
-            tile.row -= 1;
+            //better way to avoid panic?
+            if tile.row > 0 {
+                tile.row -= 1;
+            }
             tile.utf8 = SQUARE_OUTLINE;
         }
         shadow
@@ -244,7 +245,6 @@ impl Tetris {
         
         fn rotate_tetrad_right(tetrad: &mut Tetrad) {
             let rotation_matrix: [[f32; 2]; 2] = [[0.,1.],[-1.,0.]];
-           // println!("{:?}", rotation_matrix);
             Tetris::rotate_tetrad(tetrad, rotation_matrix)
         }
 
@@ -316,9 +316,43 @@ fn vecs_match<T: PartialEq>(a: &Vec<T>, b: &Vec<T>) -> bool {
     matches == a.len() && matches == b.len()
 }
 
+fn on_new_tetrad(tetris: &mut Tetris, score_table: &HashMap<usize, usize>) -> bool {
+    
+    let mut game_live = true;
+    tetris.active_tetrad.tiles.iter_mut().for_each(|tile| tile.empty = false);
+    tetris.grid.add_tetrad(&tetris.active_tetrad);
+
+    for tile in tetris.active_tetrad.tiles.iter_mut() {
+        tile.empty = false;
+    }
+
+    let full_rows = tetris.grid.full_rows();
+    let n_full_rows = full_rows.len();
+    if n_full_rows > 0 {
+        tetris.grid.clear_rows(full_rows);
+        tetris.lines += n_full_rows;
+        tetris.update_level();
+        tetris.score += score_table.get(&n_full_rows).unwrap() * tetris.level;
+    }
+
+    tetris.active_tetrad = tetris.queue.next_tetrad();
+    tetris.tetrad_shadow = tetris.get_shadow();
+    tetris.grid.add_tetrad(&tetris.tetrad_shadow);
+
+    let valid_move = tetris.active_tetrad.tiles
+        .iter()
+        .all(|tile| tetris.grid.valid_tile(*tile));
+    if valid_move {    
+        tetris.grid.add_tetrad(&tetris.active_tetrad);
+    } else {
+        game_live = false;
+    }
+    game_live
+}
+
 fn main() {
 
-    //TODO move out of main
+    //TODO move out of main: https://crates.io/crates/phf
     let mut score_table: HashMap<usize, usize> = HashMap::new();
     score_table.insert(1, 100);
     score_table.insert(2, 300);
@@ -335,11 +369,10 @@ fn main() {
     }
     let g = Grid::new(width, height, tiles);
 
-    //TODO first active tetrad from queue, not random
     let mut queue = Queue::new();
     let mut tetris = Tetris { grid: g, 
         active_tetrad: queue.next_tetrad(),
-        tetrad_shadow: Tetrad::new_l(),
+        tetrad_shadow: Tetrad::new_l(), //placeholder
         queue: queue,
         held_tetrad: None,
         score: 0,
@@ -360,81 +393,34 @@ fn main() {
     let mut can_hold = true;
     let mut game_live = true;
 
+    tetris.display();
+
     while game_live {
 
-        //TODO move file reading outside of game loop
         if sink.empty() {
-            let file = match std::fs::File::open("Tetris_theme.ogg.mp3") {
-                Err(_) => println!("for sound, add file tetris.mp3"),
+            match std::fs::File::open("tetris.mp3") {
+                Err(_) => (),
                 Ok(file) => sink.append(rodio::Decoder::new(BufReader::new(file)).unwrap()),
             };
         }
 
-        tetris.display();
-
-        //TODO stay dry
-        let mut rows_before: Vec<usize> = Vec::new();
-        let mut columns_before: Vec<usize> = Vec::new();
-        for i in 0..4 {
-            rows_before.push(tetris.active_tetrad.tiles[i].row);
-            columns_before.push(tetris.active_tetrad.tiles[i].column);
-        }
+        let position_before = tetris.active_tetrad.get_position();
         tetris.move_down(0);
+        let position_after = tetris.active_tetrad.get_position();
 
-        //TODO stay dry
-        let mut tetrad_rows: Vec<usize> = Vec::new();
-        let mut tetrad_columns: Vec<usize> = Vec::new();
-        for i in 0..4 {
-            tetrad_rows.push(tetris.active_tetrad.tiles[i].row);
-            tetrad_columns.push(tetris.active_tetrad.tiles[i].column);
-        }
+        if vecs_match(&position_before, &position_after) {
 
-        //TODO refactor in "on new" function
-        if vecs_match(&tetrad_rows, &rows_before) && vecs_match(&tetrad_columns, &columns_before) {
-
-            tetris.active_tetrad.tiles.iter_mut().for_each(|tile| tile.empty = false);
-            tetris.grid.add_tetrad(&tetris.active_tetrad);
-
-            for tile in tetris.active_tetrad.tiles.iter_mut() {
-                tile.empty = false;
-            }
-
-            let full_rows = tetris.grid.full_rows();
-            let n_full_rows = full_rows.len();
-            if n_full_rows > 0 {
-                tetris.grid.clear_rows(full_rows);
-                tetris.lines += n_full_rows;
-                tetris.update_level();
-                tetris.score += score_table.get(&n_full_rows).unwrap() * tetris.level;
-            }
-
-            tetris.active_tetrad = tetris.queue.next_tetrad();
-            tetris.tetrad_shadow = tetris.get_shadow();
-            tetris.grid.add_tetrad(&tetris.tetrad_shadow);
-
-            can_hold = true;
-
-            let valid_move = tetris.active_tetrad.tiles
-                .iter()
-                .all(|tile| tetris.grid.valid_tile(*tile));
-            if valid_move {    
-                tetris.grid.add_tetrad(&tetris.active_tetrad);
-            } else {
-                break
-            }
+            game_live = on_new_tetrad(&mut tetris, &score_table);
+            if !game_live { break }
+            can_hold = true
         }
 
         let advance_rate = 1000 - tetris.level * 100;
         let mut next_drop = std::time::Duration::from_millis(advance_rate as u64);
         let last_drop = std::time::Instant::now();
 
-        //TODO replace counter with time compairison?
-        let mut counter = 0;
+        tetris.display();
         loop {
-            if counter == 0 {
-                tetris.display();
-            }
-            counter += 1;
             let mut hard_dropped = false;
             let time_elapsed = last_drop.elapsed();
             if time_elapsed >= next_drop {
@@ -442,18 +428,19 @@ fn main() {
             }
             match input.next() {
                 None => continue,
-                Some(Ok(b'j')) => tetris.move_left(),
-                Some(Ok(b'k')) => tetris.move_right(),
-                Some(Ok(b'g')) => tetris.move_down(tetris.level),
+                Some(Ok(68)) => tetris.move_left(), //left arrow
+                Some(Ok(66)) => tetris.move_down(tetris.level), //down arrow
+                Some(Ok(67)) => tetris.move_right(), //right arrow
                 Some(Ok(b'd')) => tetris.rotate_left(),
                 Some(Ok(b'f')) => tetris.rotate_right(),
-                Some(Ok(b'h')) => {
+                Some(Ok(b's')) => {
                     if can_hold {
                         tetris.hold();
                         can_hold = false;
                     }
                 },
-                Some(Ok(b' ')) => {
+                //up arrow or space
+                Some(Ok(65)) | Some(Ok(b' ')) => {
                     tetris.hard_drop();
                     hard_dropped = true;
                     },
