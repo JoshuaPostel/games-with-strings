@@ -8,7 +8,10 @@ extern crate termion;
 use crate::grid::rgb::RGB;
 use crate::grid::grid::Depict;
 
-const SQUARE: [u8; 4] = [0xE2, 0x96, 0xA0, 0x20];
+pub const SQUARE: [u8; 4] = [0xE2, 0x96, 0xA0, 0x20];
+pub const SQUARE_OUTLINE: [u8; 4] = [0xE2, 0x96, 0xA1, 0x20];
+pub const OUTLINED_SQUARE: [u8; 4] = [0xE2, 0x96, 0xA3, 0x20];
+
 
 #[derive(Copy, Clone, Debug)]
 pub struct Tile {

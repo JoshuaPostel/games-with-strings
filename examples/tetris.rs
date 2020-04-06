@@ -14,13 +14,10 @@ use std::collections::HashMap;
 use termion::raw::IntoRawMode;
 use prettytable::Table;
 
+//TODO remove module_inception
 use grid::grid::grid::Grid;
-use grid::tetris::tile::Tile;
+use grid::tetris::tile::{Tile, SQUARE_OUTLINE};
 use grid::tetris::tetrad::{Tetrad, Queue};
-
-//const SQUARE: [u8; 4] = [0xE2, 0x96, 0xA0, 0x20];
-const SQUARE_OUTLINE: [u8; 4] = [0xE2, 0x96, 0xA1, 0x20];
-//const OUTLINED_SQUARE: [u8; 4] = [0xE2, 0x96, 0xA3, 0x20];
 
 trait Update {
 
@@ -59,7 +56,6 @@ impl Update for Grid<Tile> {
         self.grid[[tile.row, tile.column]] = default_tile;
     }
 
-    //TODO refactor
     fn valid_tile(&self, tile: Tile) -> bool {
         let row_good = 0 <= tile.row && tile.row < self.height;
         let column_good = 0 <= tile.column && tile.column < self.width;
@@ -87,8 +83,6 @@ impl Update for Grid<Tile> {
             let _ = self.grid.row_mut(full_row).map_mut(std::mem::take);
             for row_index in (0..full_row).rev() {
                 let mut bottom_row = self.grid.row_mut(row_index).map_mut(std::mem::take);
-                //not equiv?
-                //bottom_row.iter_mut().map(|tile| tile.row += 1);
                 for tile in bottom_row.iter_mut() {
                     tile.row += 1;
                 }
@@ -309,7 +303,7 @@ impl Tetris {
                 self.update_shadow();
             },
             None => {
-                self.active_tetrad = self.queue.next();
+                self.active_tetrad = self.queue.next_tetrad();
                 self.update_shadow();
             }
         }
@@ -344,7 +338,7 @@ fn main() {
     //TODO first active tetrad from queue, not random
     let mut queue = Queue::new();
     let mut tetris = Tetris { grid: g, 
-        active_tetrad: queue.next(),
+        active_tetrad: queue.next_tetrad(),
         tetrad_shadow: Tetrad::new_l(),
         queue: queue,
         held_tetrad: None,
@@ -368,9 +362,12 @@ fn main() {
 
     while game_live {
 
+        //TODO move file reading outside of game loop
         if sink.empty() {
-            let file = std::fs::File::open("Tetris_theme.ogg.mp3").unwrap();
-            sink.append(rodio::Decoder::new(BufReader::new(file)).unwrap());
+            let file = match std::fs::File::open("Tetris_theme.ogg.mp3") {
+                Err(_) => println!("for sound, add file tetris.mp3"),
+                Ok(file) => sink.append(rodio::Decoder::new(BufReader::new(file)).unwrap()),
+            };
         }
 
         tetris.display();
@@ -411,7 +408,7 @@ fn main() {
                 tetris.score += score_table.get(&n_full_rows).unwrap() * tetris.level;
             }
 
-            tetris.active_tetrad = tetris.queue.next();
+            tetris.active_tetrad = tetris.queue.next_tetrad();
             tetris.tetrad_shadow = tetris.get_shadow();
             tetris.grid.add_tetrad(&tetris.tetrad_shadow);
 

@@ -1,4 +1,3 @@
-
 extern crate ansi_term;
 extern crate rand;
 extern crate ndarray;
@@ -11,11 +10,7 @@ use rand::prelude::SliceRandom;
 use crate::grid::rgb::RGB;
 use crate::grid::grid::colored_char;
 
-use super::tile::Tile;
-
-//const SQUARE: [u8; 4] = [0xE2, 0x96, 0xA0, 0x20];
-//const SQUARE_OUTLINE: [u8; 4] = [0xE2, 0x96, 0xA1, 0x20];
-const OUTLINED_SQUARE: [u8; 4] = [0xE2, 0x96, 0xA3, 0x20];
+use super::tile::{Tile, OUTLINED_SQUARE};
 
 #[derive(Clone, Debug)]
 pub struct Tetrad {
@@ -30,7 +25,7 @@ impl Tetrad {
 
     pub fn new_i() -> Tetrad {
         let light_blue  = RGB { r: 102, g: 255, b: 255 };
-        let character = colored_char(&OUTLINED_SQUARE, light_blue);
+        let character = colored_char(OUTLINED_SQUARE, light_blue);
         let mut render = String::new();
         render.push_str("\n");
         render.push_str(&character);
@@ -46,14 +41,14 @@ impl Tetrad {
                     Tile { empty: true, color: light_blue, utf8: OUTLINED_SQUARE, row: 1, column: 6}
             ],
             center: (0.0, 5.0),
-            render: render,
+            render,
             name: "I".to_string(),
         }
     }
 
     pub fn new_o() -> Tetrad {
         let yello  = RGB { r: 255, g: 255, b: 102 };
-        let character = colored_char(&OUTLINED_SQUARE, yello);
+        let character = colored_char(OUTLINED_SQUARE, yello);
         let mut render = String::new();
         render.push_str("\n");
         render.push_str(&character);
@@ -71,7 +66,7 @@ impl Tetrad {
                     Tile { empty: true, color: yello, utf8: OUTLINED_SQUARE, row: 0, column: 5}
             ],
             center: (0.5, 4.5),
-            render: render,
+            render,
             name: "O".to_string(),
 
         }
@@ -79,7 +74,7 @@ impl Tetrad {
 
     pub fn new_t() -> Tetrad {
         let purple  = RGB { r: 178, g: 102, b: 255 };
-        let character = colored_char(&OUTLINED_SQUARE, purple);
+        let character = colored_char(OUTLINED_SQUARE, purple);
         let mut render = String::new();
         render.push_str("\n");
         render.push_str("  ");
@@ -98,7 +93,7 @@ impl Tetrad {
                     Tile { empty: true, color: purple, utf8: OUTLINED_SQUARE, row: 0, column: 4}
             ],
             center: (1.0, 4.0),
-            render: render,
+            render,
             name: "T".to_string(),
 
         }
@@ -106,7 +101,7 @@ impl Tetrad {
 
     pub fn new_s() -> Tetrad {
         let green  = RGB { r: 102, g: 255, b: 102 };
-        let character = colored_char(&OUTLINED_SQUARE, green);
+        let character = colored_char(OUTLINED_SQUARE, green);
         let mut render = String::new();
         render.push_str("\n");
         render.push_str(&character);
@@ -125,7 +120,7 @@ impl Tetrad {
                     Tile { empty: true, color: green, utf8: OUTLINED_SQUARE, row: 0, column: 4}
             ],
             center: (0.0, 5.0),
-            render: render,
+            render,
             name: "S".to_string(),
 
         }
@@ -133,7 +128,7 @@ impl Tetrad {
 
     pub fn new_z() -> Tetrad {
         let red  = RGB { r: 255, g: 0, b: 0 };
-        let character = colored_char(&OUTLINED_SQUARE, red);
+        let character = colored_char(OUTLINED_SQUARE, red);
         let mut render = String::new();
         render.push_str("\n");
         render.push_str("  ");
@@ -151,7 +146,7 @@ impl Tetrad {
                     Tile { empty: true, color: red, utf8: OUTLINED_SQUARE, row: 1, column: 4}
             ],
             center: (0.0, 4.0),
-            render: render,
+            render,
             name: "Z".to_string(),
 
         }
@@ -159,7 +154,7 @@ impl Tetrad {
 
     pub fn new_j() -> Tetrad {
         let orange  = RGB { r: 255, g: 153, b: 51 };
-        let character = colored_char(&OUTLINED_SQUARE, orange);
+        let character = colored_char(OUTLINED_SQUARE, orange);
         let mut render = String::new();
         render.push_str("\n");
         render.push_str(&character);
@@ -178,7 +173,7 @@ impl Tetrad {
                     Tile { empty: true, color: orange, utf8: OUTLINED_SQUARE, row: 1, column: 3}
             ],
             center: (1.0, 4.0),
-            render: render,
+            render,
             name: "J".to_string(),
 
         }
@@ -186,7 +181,7 @@ impl Tetrad {
 
     pub fn new_l() -> Tetrad {
         let dark_blue  = RGB { r: 0, g: 0, b: 255 };
-        let character = colored_char(&OUTLINED_SQUARE, dark_blue);
+        let character = colored_char(OUTLINED_SQUARE, dark_blue);
         let mut render = String::new();
         render.push_str("\n");
         render.push_str("  ");
@@ -206,7 +201,7 @@ impl Tetrad {
                     Tile { empty: true, color: dark_blue, utf8: OUTLINED_SQUARE, row: 1, column: 6}
             ],
             center: (1.0, 5.0),
-            render: render,
+            render,
             name: "L".to_string(),
 
         }
@@ -240,6 +235,7 @@ impl Tetrad {
     }
 }
 
+#[derive(Default)]
 pub struct Queue {
     pub tetrads: Vec<Tetrad>
 }
@@ -250,8 +246,8 @@ impl Queue {
         Queue { tetrads: Queue::new_shuffled_seven() }
     }
     
-    pub fn next(&mut self) -> Tetrad {
-        let next_tetrad = match self.tetrads.len() {
+    pub fn next_tetrad(&mut self) -> Tetrad {
+        match self.tetrads.len() {
             0 ..= 6 => {
                 self.tetrads.reverse();
                 self.tetrads.append(&mut Queue::new_shuffled_seven());
@@ -259,8 +255,7 @@ impl Queue {
                 self.tetrads.pop().unwrap()
             },
             _ => self.tetrads.pop().unwrap() 
-        };
-        next_tetrad
+        }
     }
 
     fn new_shuffled_seven() -> Vec<Tetrad> {

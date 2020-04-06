@@ -3,7 +3,6 @@ extern crate rand;
 extern crate ndarray;
 
 use std::fmt;
-
 use super::rgb::RGB;
 
 pub trait Depict {
@@ -13,12 +12,11 @@ pub trait Depict {
 
 }
 
-pub fn colored_char(utf8: &[u8; 4], rgb: RGB) -> String {
-    let character = std::str::from_utf8(utf8).unwrap();
-    let colored_character = ansi_term::Color::RGB(rgb.r, rgb.g, rgb.b)
+pub fn colored_char(utf8: [u8; 4], rgb: RGB) -> String {
+    let character = std::str::from_utf8(&utf8).unwrap();
+    ansi_term::Color::RGB(rgb.r, rgb.g, rgb.b)
         .paint(character)
-        .to_string();
-    colored_character
+        .to_string()
 }
 
 #[derive(Clone, Debug)]
@@ -36,10 +34,9 @@ impl<T: Depict> Grid<T> {
             for tile in row {
                 //TODO figure out the ownership issue here
                 let utf8 = &tile.utf8();
-                let character = colored_char(utf8, tile.color());
+                let character = colored_char(*utf8, tile.color());
                 display_string.push_str(&character);
             }
-            //display_string.push_str("\n\r");
             display_string.push_str("\n");
         }
         display_string
@@ -56,7 +53,7 @@ impl<T: Depict> fmt::Display for Grid<T> {
             for tile in row {
                 //TODO figure out the ownership issue here
                 let utf8 = &tile.utf8();
-                let character = colored_char(utf8, tile.color());
+                let character = colored_char(*utf8, tile.color());
                 display_string.push_str(&character);
             }
             display_string.push_str("\r\n");
@@ -69,6 +66,6 @@ impl<T: Depict> fmt::Display for Grid<T> {
 impl<T: Depict> Grid<T> {
     pub fn new(width: usize, height: usize, tiles: Vec<T>) -> Grid<T> {
         let grid = ndarray::Array::from_shape_vec((height, width), tiles).unwrap();
-        Grid { width: width, height: height, grid: grid }
+        Grid { width, height, grid }
     }
 }

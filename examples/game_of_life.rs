@@ -11,6 +11,8 @@ use grid::grid::rgb::RGB;
 use rand::Rng;
 use itertools::Itertools;
 
+//TODO struct Tile -> bool?
+//color can be determined by `impl Depict for Tile`?
 #[derive(Copy, Clone, Debug)]
 struct Tile {
     alive: bool,
