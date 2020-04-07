@@ -1,12 +1,6 @@
-### TODO:
-- [x] clear screen in `impl fmt::Display`
-- [ ] package/executables
+2d games in the terminal using strings
 
-### Tetris
-- [x] next tetrad not full random
-- [x] display next tetrads
-- [x] hold tetrad
-- [x] score
-- [x] speed up
-- [x] music
-- [ ] refactor control loop
+## Tetris
+
+## Conway's Game of Life
+
