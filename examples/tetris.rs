@@ -382,6 +382,9 @@ quit:          Q
     greeting.add_row(row!["   Press ENTER to begin"]);
     greeting.add_row(row![controls_text]);
     greeting.add_row(row![" Add tetris.mp3 for music"]);
+    //TODO better way for frist screen clear?
+    println!("{}", greeting.to_string());
+    println!("{}[2J", 27 as char);
     println!("{}", greeting.to_string());
 
 

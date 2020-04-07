@@ -99,8 +99,8 @@ impl Update for Grid<Tile> {
 
 fn main() {
 
-    let width = 50;
-    let height = 50;
+    let width = 25;
+    let height = 25;
     let mut tiles: Vec<Tile> = Vec::new();
     for _ in 0..(width*height) {
         tiles.push(Tile::new_random(0.25))
