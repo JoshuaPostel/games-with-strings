@@ -234,7 +234,6 @@ impl Tetris {
         
         fn rotate_tetrad_left(tetrad: &mut Tetrad) {
             let rotation_matrix: [[f32; 2]; 2] = [[0.,-1.],[1.,0.]];
-           // println!("{:?}", rotation_matrix);
             Tetris::rotate_tetrad(tetrad, rotation_matrix)
         }
 
