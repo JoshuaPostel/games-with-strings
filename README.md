@@ -2,6 +2,7 @@
 
 ## Tetris
 `cargo run --examples tetris`
+
 ![](examples/tetris_demo.gif)
 
 Retrospective:
@@ -16,6 +17,7 @@ Retrospective:
 
 ## Conway's Game of Life
 `cargo run --examples game_of_life`
+
 ![](examples/game_of_life_demo.gif)
 
 Retrospective:
