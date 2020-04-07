@@ -352,25 +352,39 @@ fn on_new_tetrad(tetris: &mut Tetris, score_table: &HashMap<usize, usize>) -> bo
 
 fn main() {
 
-    println!(
-"
-left: left arrow
+    let tetris_text = 
+" _____    _        _   
+|_   _|__| |_ _ __(_)___
+  | |/ _ \\ __| '__| / __|
+  | |  __/ |_| |  | \\__ \\
+  |_|\\___|\\__|_|  |_|___/
 
-right: right arrow
+";
+    let controls_text = 
+"left:          J  ⇦ 
 
-hard drop: up arrow or space
+right:         L  ⇨
 
-down: down arrow
+down:          K  ⇩
 
-rotate left: d
+hard drop:     I  ⇧  SPACE
 
-rotate right: f
+rotate left:   D
 
-hold: s
+rotate right:  F
 
-quit: q
-"
-);
+hold:          S
+
+quit:          Q
+";
+    let mut greeting = Table::new();
+    greeting.add_row(row![tetris_text]);
+    greeting.add_row(row!["   Press ENTER to begin"]);
+    greeting.add_row(row![controls_text]);
+    greeting.add_row(row![" Add tetris.mp3 for music"]);
+    println!("{}", greeting.to_string());
+
+
 
     //TODO move out of main: https://crates.io/crates/phf
     let mut score_table: HashMap<usize, usize> = HashMap::new();
@@ -457,9 +471,9 @@ quit: q
             }
             match input.next() {
                 None => continue,
-                Some(Ok(68)) => tetris.move_left(), //left arrow
-                Some(Ok(66)) => tetris.move_down(tetris.level), //down arrow
-                Some(Ok(67)) => tetris.move_right(), //right arrow
+                Some(Ok(68)) | Some(Ok(b'j')) => tetris.move_left(), //left arrow
+                Some(Ok(66)) | Some(Ok(b'k')) => tetris.move_down(tetris.level), //down arrow
+                Some(Ok(67)) | Some(Ok(b'l')) => tetris.move_right(), //right arrow
                 Some(Ok(b'd')) => tetris.rotate_left(),
                 Some(Ok(b'f')) => tetris.rotate_right(),
                 Some(Ok(b's')) => {
@@ -468,17 +482,14 @@ quit: q
                         can_hold = false;
                     }
                 },
-                //up arrow or space
-                Some(Ok(65)) | Some(Ok(b' ')) => {
+                //up arrow
+                Some(Ok(65)) | Some(Ok(b'i')) | Some(Ok(b' ')) => {
                     tetris.hard_drop();
                     hard_dropped = true;
                     },
                 Some(Ok(b'q')) => {
                     game_live = false;
                     break;
-                },
-                Some(foo) => {
-                    println!("foo:{:?}", foo);
                 },
                 _ => break
             }
