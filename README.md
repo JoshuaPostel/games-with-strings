@@ -13,7 +13,7 @@
   * in future: break into modules early and often
 * better function wrapping pattern?
 * control loops are fun
-* manual testing is fun (get to play tetris)
+* manual testing is fun (when you get to play tetris)
 * `crate prettytable` worked wonderfully with string based display
   * made adding features a breeze
 
